@@ -10,7 +10,7 @@
 |        011 | LXI HL 0    | 041 000 000     | Load zero into HL register pair.          |
 |        014 | MVI B 8     | 006 010         | Load 8 into B loop counter.               |
 |        017 | RAR         | 037             | Rotate A right through carry flag.        |
-|        020 | **JNC 033** | 322 027 000     | If carry clear, jump to 033.              |
+|        020 | **JNC 030** | 322 027 000     | If carry clear, jump to 030.              |
 |        023 | DAD DE      | 031             | Add DE to HL, sixteen-bit addition.       |
 |        024 | NOP ×4      | 000 000 000 000 | Four NOPs for alignment and separation.   |
 |        030 | XCHG        | 353             | Swap HL and DE register pairs.            |
