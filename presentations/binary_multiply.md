@@ -2,28 +2,47 @@
 
 ## Program
 
-| ADDRESS       | MNEMONIC  | OCTAL CODE      | EXPLANATION                                      |
-|---------------|-----------|-----------------|--------------------------------------------------|
-| 000 001       | MVIA      | 076 002         | Multiplier to A Register                         |
-| 002 003       | MVID      | 026 003         | Multiplicand to D,E Registers                    |
-| 004 005       | MVIE      | 036 000         |                                                  |
-| 006 007 010   | LXIH      | 041 000 000     | Clear H,L Registers to initialize Partial Product |
-| 011 012       | MVIB      | 006 010         | Iteration Count to B Register                    |
-| 013           | DADH      | 051             | Shift Partial Product left into Carry            |
-| 014           | RAL       | 027             | Rotate Multiplier Bit to Carry                   |
-| 015 016 017   | **JNC**   | 322 023 000     | Test Multiplier at Carry                         |
-| 020           | DADD      | 031             | Add Multiplicand to Partial Product if Carry =1  |
-| 021 022       | ACI       | 316 000         |                                                  |
-| 023           | DCRB      | 005             | Decrement Iteration Counter                      |
-| 024 025 026   | **JNZ**   | 302 013 000     | Check Iterations                                 |
-| 027 030 031   | SHLD      | 042 100 000     | Store Answer in Locations 100,101                |
-| 032 033 034   | **JMP**   | 303 000 000     | Restart                                          |
+| ADDR (oct) | MNEMONIC        | OCTAL BYTES       | EXPLANATION                                  |
+|-----------:|-----------------|-------------------|----------------------------------------------|
+| 000        | MVI A 7         | 076 007           | Load 7 into accumulator A register.          |
+| 003        | MVI E 9         | 036 011           | Load 9 into register E.                      |
+| 006        | MVI D 0         | 026 000           | Load 0 into register D (multiplicand).       |
+| 011        | LXI HL 0        | 041 000 000       | Load zero into HL register pair.             |
+| 014        | MVI B 8         | 006 010           | Load 8 into B loop counter.                  |
+| 017        | RAR             | 037               | Rotate A right through carry flag.           |
+| 020        | **JNC 033**     | 322 027 000       | If carry clear, jump to 033.                 |
+| 023        | DAD DE          | 031               | Add DE to HL, sixteen-bit addition.          |
+| 024        | NOP ×4          | 000 000 000 000   | Four NOPs for alignment and separation.      |
+| 030        | XCHG            | 353               | Swap HL and DE register pairs.               |
+| 031        | DAD HL          | 051               | Double HL value by self-addition.            |
+| 032        | XCHG            | 353               | Swap back HL and DE pairs.                   |
+| 033        | DCR B           | 005               | Decrement B loop counter by one.             |
+| 034        | **JNZ 017**     | 302 017 000       | If B not zero, jump 017.                     |
+| 037        | SHLD 128        | 042 200 000       | Store HL into memory address 128.            |
+| 042        | **JMP 000**     | 303 000 000       | Unconditional jump back to program start.    |
+
 
 ## Explanation
 
 1. The **multiplier** (8 bits) is stored in the A register. 076 is the MVIA instruction,
-   and **002** (= 2 in decimal) is our multiplier.
+   7 is our multiplier.
 2. The **multiplicand** (8 bits) is stored in the E register (low byte). It is also storing a byte of 0 at the D register (high byte). This is because we need extra empty space for all the left shifting we're going to do.
 3. The H and L registers are cleared to initialize the partial product. This is where we will accumulate our final answer!
-4. The **iteration count** starts at 8. It will be decremented every time we move to the next bit of the multiplier. **When the iteration count is 0, the program will end; the mechanics of that will be explained later.**
-5. We start by consuming the first bit of our 
+4. The **iteration count** starts at 8. It is in register B. It will be decremented every time we move to the next bit of the multiplier. **When the iteration count is 0, the program will end; the mechanics of that will be explained later.**
+5. We start by consuming the rightmost bit of our multiplier. This is done using the RAR instruction; it's basically a right shift, but instead of the bit at the end disappearing, it replaces the Carry bit. The carry bit is very important for the control flow of the program.
+6. If the Carry bit is NOT set, meaning that the rightmost bit that we just consumed was not on, we jump to instruction 033, which basically repeats the loop. This is accomplished using the JNC (jump-no-carry) instruction.
+7. If the Carry bit IS set, though... that means we need to add the multiplicand to the product. This is accomplished using the DAD (double add) instruction, which adds a certain register pair to HL. In this case, we target the DE registers since that's where our multiplicand is.
+8. Now we need to think about moving on to the next bit in our number. It would not make sense for a more significant bit to have the same "power" as a less significant bit; in fact, it should have exactly **double** the power, since we're using base 2, and each place is double the place before. How do we accomplish this? By doubling the value of the multiplicand, and therefore doubling the effect that the next bit will have on the final product. This is equivalent to adding a zero to the end of the number in pen-and-paper multiplication.
+9. That doubling is accomplished using a DAD instruction. We have to XCHG first, though, since you are only allowed to DAD to HL.
+10. Finally, we decrement register B (our loop counter) by 1. This also updates the Zero flag...
+11. If the Zero flag is not set (meaning we still have more bits to consume), then we jump back to the beginning of the loop. Otherwise, all that's left is a SHLD (store HL directly) instruction to store our result, and then we're done!
+
+## New Instructions (+ links)
+
+We have not used the following instructions before in class:
+- [SHLD](https://ubuntourist.codeberg.page/Altair-8800/part-4.html#shld)
+- [DAD](https://ubuntourist.codeberg.page/Altair-8800/part-4.html#dad)
+- [JNZ](https://ubuntourist.codeberg.page/Altair-8800/part-4.html#jnz)
+- [JNC](https://ubuntourist.codeberg.page/Altair-8800/part-4.html#jnc)
+- [XCHG](https://ubuntourist.codeberg.page/Altair-8800/part-4.html#xchg)
+- [RAR](https://ubuntourist.codeberg.page/Altair-8800/part-4.html#rar)
