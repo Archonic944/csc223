@@ -7,7 +7,7 @@
 3a # Load multiplier from mem 41
 29
 00
-6 # Loop counter B = 8 (process 8 bits)
+06 # Loop counter B = 8 (process 8 bits)
 08
 21 # Clear HL (product accumulator)
 00
