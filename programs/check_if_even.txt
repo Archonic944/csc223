@@ -1,0 +1,14 @@
+(all numbers in decimal)
+Parity is bit 2 in the status byte
+
+LDA 0 40
+INRA
+JPE 0 15
+MVIA 255
+STA 0 40
+EI
+HLT
+MVIA 0
+STA 0 40
+EI
+HLT
