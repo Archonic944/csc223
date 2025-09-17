@@ -1,14 +1,14 @@
-(all numbers in decimal)
+(all numbers in decimal unless they have 0x)
 Parity is bit 2 in the status byte
 
-LDA 0 40
+LDA 0x40
 INRA
 JPE 0 15
 MVIA 255
-STA 0 40
+STA 0 0x40
 EI
 HLT
 MVIA 0
-STA 0 40
+STA 0 0x40
 EI
 HLT
