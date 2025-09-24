@@ -29,9 +29,37 @@
 ## Disk Addressing
 
 - A disk is made up of circular tracks, which are divided into sectors.
-  - Each sector has its own address (e.g. track 2 sector 5) called a record
+  - Each sector has its own address (e.g. track 2 sector 5) called a **record**
   - Records intially held 128 bytes
 - CP/M is designed to eliminate the need to know the physical layout of the disk.
+
+## Hard Copy
+
+- A line printer does not print one character at a time, but instead, receives characters, stores in them in a buffer, and stores them until a carriage return is received
+- References to a line printer are different than references to the printer on the console.
+- We do not need a line printer because we can screenshot and save things.
+
+## Input/Output Devices
+
+- Usually, we can read and write to floppy disks, but sometimes we need to read paper tape.
+- The CP/M operating system was generated on a computer that expected reader and punchers to be available, so those device names became the default for I/O devices.
+    - > And we have all been sorry ever since.
+- Modem: (Modulator-demodulator) Enables us to communicate with otehr computers over a telephone line.
+    - Modulates a carrier tone to send data, and demodulates a carrier tone to receive data.
+- ASCII is the American Standard Code for Information Exchange.
+- More peripherals can be added that "look like" a modem to the computer.
+
+## A simple computer system
+
+- Minimum hardware configuration for the book's exercises:
+    - At least 1 floppy disk drive
+    - At least 16KB of RAM
+    - A terminal
+    - ~~A print writer~~
+- Throughout the book, we will jump into writing, editing, assembling, and debugging programs. We will learn instructions along the way instead of studying them first.
+
+
+
 
 ## Vocab
 
