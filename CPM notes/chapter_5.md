@@ -48,3 +48,4 @@
 - Some functions, resident functions, are not loaded from disk, but take memory space. They COULD all be stored as .com files, but that would waste time. "transient" commands are loaded from disk.
 - SAVE, ERA (erase), REN (rename), DIR, TYPE (cat), PIP (copy) are resident functions
 - STAT changes the physical assignment of a logical device
+- You can use SUBMIT to run batch files
