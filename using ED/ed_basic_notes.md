@@ -32,7 +32,6 @@
 | `±B` | Move CP to **beginning** (`+B`) or **bottom** (`-B`) | Reset position before listings or edits. |
 | `n:` | Move to **absolute line** `n` | Example: `345:T` moves to line 345 and types it. Use `:n` for relative offset from current line. |
 | `n1::n2` | **Range** from absolute `n1` to `n2` | Example: `345::400T` moves to line 345, then types through line 400. |
-| `0L T` | Move CP to line start, then type to end | Common sequence: `0L` positions at start, `T` types rest of line. |
 | `±n` | Move and type | Shorthand for `±nLT`. Moves `n` lines and types one line. |
 
 ### Large File Management
