@@ -60,17 +60,6 @@
 
 ---
 
-## Major Corrections from Original Table
-
-**WRONG in original:**
-- **`0`** (zero alone) — Does NOT exist as a command. Use **`0L`** to move CP to line start.
-- **`O`** — Does NOT "open new file from temp." It **returns to original source file**, discarding all edits.
-- **`H`** — Does NOT "return to original." It **saves and reopens** the edited file as new source (move to "head" of new file).
-- **`nL`** — Can move **up** with `-nL` or **down** with `+nL`, not just down.
-- **`T`** descriptions were misleading about what `T` vs `0T` vs `nT` do.
-
----
-
 ## Sample Workflows
 
 ### 1. Create a new file `TEST.ASM`
