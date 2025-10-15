@@ -2,6 +2,12 @@
 
 ## Commands & Notes
 
+### Things to know
+
+- **Character Pointer (CP)** is always between characters, at line start, or at buffer end
+- **Default n=1** when number omitted (e.g., `T` = `1T`, `L` = `1L`)
+- Commands like **F (find) and S (substitute)** will only look after the CP - so keep an eye on it 
+
 ### Essential Commands (Learn These First)
 
 | Cmd | What it does | Notes / usage details |
@@ -18,7 +24,7 @@
 
 | Cmd | What it does | Notes / usage details |
 |---|---|---|
-| `nSs1^Zs2^Z` | **Substitute** `s1` → `s2` | Substitutes string `s1` with `s2` on next `n` occurrences. Use CTRL-Z as delimiter. Use lowercase `s` for mixed case. |
+| `nSs1^Zs2^Z` | **Substitute** `s1` → `s2` | Substitutes string `s1` with `s2` on next `n` occurrences. Use CTRL-Z as delimiter. Use lowercase `s` for mixed case.|
 | `±nD` | **Delete** `n` characters | `+nD` deletes forward; `-nD` deletes backward from CP. |
 | `nFs^Z` | **Find** string `s` | Searches for `s` starting at CP. Moves CP after string if found. `n` = number of occurrences. |
 | `Is^Z` | **Insert** string `s` | Inserts `s` at CP. Terminated by `^Z` (no newline) or `<cr>` (adds newline). |
@@ -117,8 +123,6 @@ E
 
 ## Key Points from CP/M 2.2 Manual
 
-- **Character Pointer (CP)** is always between characters, at line start, or at buffer end
-- **Default n=1** when number omitted (e.g., `T` = `1T`, `L` = `1L`)
 - **`#` means 65535** (effectively "all")
 - **Colon (`:`) for absolute addressing:** `345:T` moves to line 345; `:400T` types through line 400; `345::400T` moves to 345, types through 400
 - **Line numbers are temporary** — they change after edits and are not saved to file
