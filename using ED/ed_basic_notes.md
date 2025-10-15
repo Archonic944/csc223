@@ -1,4 +1,4 @@
-# CP/M `ED` — quick command table & workflows
+# CP/M `ED`: quick command table & workflows
 
 Version in use
 - Matches Digital Research **ED** as shipped with CP/M **1.4–2.2** (features in the excerpt align with the ED User’s Manual and 2.x reference cards; `V`/`-V` line-number toggle and `#A` appear there).
