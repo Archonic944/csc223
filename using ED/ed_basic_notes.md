@@ -55,7 +55,7 @@
 | `nX` | **Transfer** `n` lines to X$$$.LIB | Saves lines to temporary transfer file without removing them from buffer. |
 | `R` | **Read** from transfer file or library | With no filename, reads X$$$.LIB. With filename (e.g., `RMACRO^Z`), reads MACRO.LIB. |
 | `nJs1^Zs2^Zs3^Z` | **Juxtapose** strings | Finds `s1`, inserts `s2`, deletes up to `s3`. Repeated `n` times. |
-| `nMcs^Z` | **Macro** command | Executes command string `cs` a total of `n` times (or until error if `n=0` or `1`). |
+| `nMcs` | **Macro** command | Executes command string `cs` a total of `n` times (or until error if `n=0` or `1`). *The macro should be on its own line.*|
 | `H` | **Move to head** of new file | Performs automatic `E`, then reopens result as new source file. Like saving and re-editing. |
 | `O` | **Return to original** source file | Empties buffer, deletes temporary file, resets to start of source. Discards all edits. |
 | `V` / `-V` | Turn line numbering on / off | `V` enables line number display; `-V` disables it. `0V` shows buffer statistics (free/total bytes). |
