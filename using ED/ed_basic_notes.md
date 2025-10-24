@@ -21,6 +21,10 @@
 | `±nL` | Move **up/down `n` lines** | `+nL` or `nL` moves down; `-nL` moves up. Default `n=1`. Primary navigation command. |
 | `±nK` | **Kill** (delete) lines | Deletes `n` lines. `+nK` or `nK` deletes forward; `-nK` deletes backward. |
 
+### The Quirks of Insert Mode
+* The first line feed does not get inserted if the command ends in I (the one after your command)
+* If your command enters insert mode, and types some characters, for example, `btlIHello.`, then `Hello.\r\n` will be written to the file, and insert mode will be exited. It basically infers the ^Z at the end of the line. It will not "enter insert mode" after writing "Hello."
+
 ### Basic Editing Commands
 
 | Cmd | What it does | Notes / usage details |
