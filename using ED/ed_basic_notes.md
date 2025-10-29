@@ -13,7 +13,7 @@
 
 | Cmd | What it does | Notes / usage details |
 |---|---|---|
-| `I` / `i` | Enter **insert mode** | Type text. Finish with **CTRL-Z** to return to command mode. Use lowercase `i` to allow mixed case input; uppercase `I` forces all input to uppercase. |
+| `I` / `i` | Enter **insert mode** | Type text. Finish with **CTRL-Z** to return to command mode. Use lowercase `i` to allow mixed case input; uppercase `I` forces all input to uppercase. Inserts your text *before* the character pointer. |
 | `E` | **End edit** (save & exit) | Writes buffer to disk, appends any remaining source lines; previous version becomes `.BAK`. |
 | `Q` | **Quit without saving** | Abort the edit session; discard buffer changes. |
 | `#A` | Append entire file from disk | `#` means 65535. Loads all unread lines from source file into buffer. Most common way to start editing. |
@@ -22,7 +22,7 @@
 | `±nK` | **Kill** (delete) lines | Deletes `n` lines. `+nK` or `nK` deletes forward; `-nK` deletes backward. |
 
 ### The Quirks of Insert Mode
-* The first line feed does not get inserted if the command ends in I (the one after your command)
+* When "entering insert mode" the first line feed doesn't get inserted
 * If your command enters insert mode, and types some characters, for example, `btlIHello.`, then `Hello.\r\n` will be written to the file, and insert mode will be exited. It basically infers the ^Z at the end of the line. It will not "enter insert mode" after writing "Hello."
 
 ### Basic Editing Commands
