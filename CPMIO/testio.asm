@@ -30,7 +30,11 @@ PARSEINT:
         PLOOP:
                 MOV A,M ; GET CHARACTER
                 CPI A,'0'
+                RC
+                CPI A,'9'
+                RC
                 
+
 
 
 ; CONSOLE CHARACTER INTO REGISTER A MASKED TO 7 BITS
