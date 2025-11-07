@@ -36,9 +36,24 @@ PARSEINT:
         MOV A,M
         CPI '-'
         JNZ NON_NEG
-        MOV D,
+        MVI A,01H
+        STA FLAG
+        LXI D,00H
+        JMP PLOOP
+        NON_NEG:        MVI A,00H
+                        STA FLAG
+        PLOOP:
+                MOV A,M ; GET CHARACTER
+                CPI A,'0'
+                JNC PLOOP_END
+                CPI A,'9'
+                JC PLOOP_END
+
+                JMP PLOOP
+        PLOOP_END:
 
                 
+        
 
 
 
