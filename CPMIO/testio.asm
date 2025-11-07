@@ -24,15 +24,20 @@ ZERO    EQU     30H
 ; PROGRAM GOES HERE
 START1:
 
-; INPUT (CHAR POINTER) GOES IN HL, RESULT GOES IN DE
+; INPUT (CHAR POINTER) GOES IN HL, RESULT GOES IN BC
 PARSEINT:
         PUSH A
-        PLOOP:
-                MOV A,M ; GET CHARACTER
-                CPI A,'0'
-                RC
-                CPI A,'9'
-                RC
+        PUSH B
+        PUSH C
+        PUSH D
+        PUSH E
+        PUSH H
+        PUSH L
+        MOV A,M
+        CPI '-'
+        JNZ NON_NEG
+        MOV D,
+
                 
 
 
@@ -127,5 +132,6 @@ GETYN:  CALL    SPMSG
         RET                     ; AND ALL DONE
 
 INBUF:  DS      83              ; LINE INPUT BUFFER
+FLAG: DS 1 ; FLAG BYTE FOR USE BY THE PROGRAM
 
         END
