@@ -54,27 +54,27 @@ PARSEINT:
         LXI B,00H ; SAME WITH BC
         MOV A,M
         CPI '-'
-        JNZ NON_NEG
+        JNZ NONNEG
         LDA FLAG
         ORI 01H ; SET LSB TO INDICATE SUBTRACTION LATER
         STA FLAG
         JMP PLOOP
-        NON_NEG:        LDA FLAG
+        NONNEG:        LDA FLAG
                         ANI FEH ; MASK OUT LSB TO INDICATE NO SUBTRACTION LATER
                         STA FLAG
         PLOOP:
                 MOV A,M ; GET CHARACTER
                 CPI A,'0'
-                JNC PLOOP_END
+                JNC PLOOPEND
                 CPI A,'9'
-                JC PLOOP_END
+                JC PLOOPEND
                 SUI '0'
                 ADD E
                 MOV E,A
                 MOV A,D
                 ACI 00H ; ADD CARRY TO HIGH BYTE (REG B)
                 MOV D,A
-                MULT_BY_TEN: ; TO DO THIS WE SHIFT THE BYTES LEFT 3 TIMES, THEN ADD THE ORIGINAL VALUES TWICE
+                MULTBYTEN: ; TO DO THIS WE SHIFT THE BYTES LEFT 3 TIMES, THEN ADD THE ORIGINAL VALUES TWICE
                         MOV B,D ; BACK UP THE PRE-LEFT-SHIFT TOTAL IN BC
                         MOV C,E
                         ADI 0   ; RESET CARRY. WE ONLY NEED TO DO THIS ONCE SINCE RAL-ING D SHOULD NOT PUT ANYTHING 
@@ -110,13 +110,13 @@ PARSEINT:
                 INX H   ; INCREMENT ADDRESS
                 JMP PLOOP
 
-        PLOOP_END:
+        PLOOPEND:
         LDA FLAG        ; CHECK IF NEGATIVE
         ANI 01H
         CPI 01H
         SUB A           ; CLEAR ACCUMULATOR
         JZ NEGATIVE
-        POP_REGS_RET:
+        POPREGSRET:
         POP L
         POP H
         POP C
@@ -129,7 +129,7 @@ PARSEINT:
                         MVI A,0 ; MVI INSTEAD OF SUB A BECAUSE WE DONT WANT TO TOUCH STATUS BITS
                         SBB E
                         MOV E,A
-                        JMP POP_REGS_RET
+                        JMP POPREGSRET
 
 ; PRINTS A SIGNED 16-BIT INTEGER IN DE
 PRINTDE:
@@ -141,12 +141,12 @@ PRINTDE:
 
         MOV A,D
         ORA E
-        JZ  PZ_ZERO
+        JZ  PZZERO
 
         ; Check sign
         MOV A,D
         ANI 80H
-        JZ  POSITIVE_DONE
+        JZ  POSITIVEDONE
 
         ; Negative: negate DE = -DE and print '-'
         MOV A,E
@@ -159,37 +159,37 @@ PRINTDE:
         MVI A,'-'
         CALL CO
 
-POSITIVE_DONE:
+POSITIVEDONE:
         MVI B,0             ; digit count = 0
 
 CONVERT:
         MOV A,D
         ORA E
-        JZ  POP_PRINT       ; stop when quotient = 0
+        JZ  POPPRINT       ; stop when quotient = 0
 
         MVI H,0
         MVI L,0
 
-DIV_LOOP:
+DIVLOOP:
         MOV A,D
         ORA A
         JNZ SUB10
         MOV A,E
         CPI 10
-        JC  DIV_DONE
+        JC  DIVDONE
 SUB10:
         MOV A,E
         SUI 10
         MOV E,A
-        JC  DEC_D
-        JMP INC_QL
-DEC_D:
+        JC  DECD
+        JMP INCQL
+DECD:
         DCR D
-INC_QL:
+INCQL:
         INX H
-        JMP DIV_LOOP
+        JMP DIVLOOP
 
-DIV_DONE:
+DIVDONE:
         MOV A,E
         ADI '0'
         PUSH PSW
@@ -198,16 +198,16 @@ DIV_DONE:
         MOV E,L
         JMP CONVERT
 
-POP_PRINT:
+POPPRINT:
         MOV C,B
-PRINT_LOOP:
+PRINTLOOP:
         POP PSW
         CALL CO
         DCR C
-        JNZ PRINT_LOOP
+        JNZ PRINTLOOP
         JMP DONE
 
-PZ_ZERO:
+PZZERO:
         MVI A,'0'
         CALL CO
 
