@@ -29,8 +29,6 @@ PARSEINT:
         PUSH A
         PUSH B
         PUSH C
-        PUSH D
-        PUSH E
         PUSH H
         PUSH L
         LXI D,00H ; CLEAR DE REGISTERS IN PREPARATION
@@ -102,8 +100,6 @@ PARSEINT:
         POP_REGS_RET:
         POP L
         POP H
-        POP E
-        POP D
         POP C
         POP B
         POP A
