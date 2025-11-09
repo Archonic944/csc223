@@ -24,12 +24,13 @@ ZERO    EQU     30H
 ; PROGRAM GOES HERE
 START1:
         CALL SPMSG
-        DB 'HELLO THERE! PLEASE INPUT A NUMBER.',0
+        DB 'HELLO THERE! PLEASE INPUT A NUMBER.',CR,LF,0
 
         CALL CIMSG
         LXI H,INBUF+2   ; POINT TO FIRST CHARACTER
 
         CALL PARSEINT
+        CALL PRINTDE    ; PARSE AND PRINT
 
         TESTPRINT:
         MVI 'A' ; PRINT THE LETTER A TO CONSOLE
@@ -129,6 +130,95 @@ PARSEINT:
                         SBB E
                         MOV E,A
                         JMP POP_REGS_RET
+
+; PRINTS A SIGNED 16-BIT INTEGER IN DE
+PRINTDE:
+        ; Save registers
+        PUSH PSW
+        PUSH B
+        PUSH D
+        PUSH H
+
+        MOV A,D
+        ORA E
+        JZ  PZ_ZERO
+
+        ; Check sign
+        MOV A,D
+        ANI 80H
+        JZ  POSITIVE_DONE
+
+        ; Negative: negate DE = -DE and print '-'
+        MOV A,E
+        CMA
+        MOV E,A
+        MOV A,D
+        CMA
+        MOV D,A
+        INX D
+        MVI A,'-'
+        CALL CO
+
+POSITIVE_DONE:
+        MVI B,0             ; digit count = 0
+
+CONVERT:
+        MOV A,D
+        ORA E
+        JZ  POP_PRINT       ; stop when quotient = 0
+
+        MVI H,0
+        MVI L,0
+
+DIV_LOOP:
+        MOV A,D
+        ORA A
+        JNZ SUB10
+        MOV A,E
+        CPI 10
+        JC  DIV_DONE
+SUB10:
+        MOV A,E
+        SUI 10
+        MOV E,A
+        JC  DEC_D
+        JMP INC_QL
+DEC_D:
+        DCR D
+INC_QL:
+        INX H
+        JMP DIV_LOOP
+
+DIV_DONE:
+        MOV A,E
+        ADI '0'
+        PUSH PSW
+        INR B
+        MOV D,H
+        MOV E,L
+        JMP CONVERT
+
+POP_PRINT:
+        MOV C,B
+PRINT_LOOP:
+        POP PSW
+        CALL CO
+        DCR C
+        JNZ PRINT_LOOP
+        JMP DONE
+
+PZ_ZERO:
+        MVI A,'0'
+        CALL CO
+
+DONE:
+        ; Restore registers
+        POP H
+        POP D
+        POP B
+        POP PSW
+        RET
+
 
 
 ; CONSOLE CHARACTER INTO REGISTER A MASKED TO 7 BITS
