@@ -35,9 +35,12 @@ START1:
         TESTPRINT:
         MVI A,'A' ; PRINT THE LETTER A TO CONSOLE
         CALL CO
+        CALL CCRLF
 
         DCX D   ; DECREMENT COUNTER
         JNZ TESTPRINT
+        
+        CALL CCRLF
 
         CALL SPMSG
         DB 'THATS ALL, FOLKS!',0
@@ -56,12 +59,32 @@ PARSEINT:
         ORI 01H ; SET LSB TO INDICATE SUBTRACTION LATER
         STA FLAG
         JMP PLOOP
-        NONNEG:        LDA FLAG
+        NONNEG:         PUSH H
+                        CALL SPMSG
+                        DB 'before first lda',CR,LF,0
+                        POP H
+                        LDA FLAG
+                        PUSH H
+                        CALL SPMSG
+                        DB 'before sta',CR,LF,0
+                        POP H
                         ANI FEH ; MASK OUT LSB TO INDICATE NO SUBTRACTION LATER
                         STA FLAG
+                        PUSH H
+                        CALL SPMSG
+                        DB 'after sta',CR,LF,0
+                        POP H
+                        PUSH H
+                CALL SPMSG
+                DB 'ugh its looping AGAIN',CR,LF,0
+                POP H
         PLOOP:
+                PUSH H
+                CALL SPMSG
+                DB 'ugh its looping AGAIN',CR,LF,0
+                POP H
                 MOV A,M ; GET CHARACTER
-                
+                CALL CO
                 CPI A,'0'
                 JNC PLOOPEND
                 CPI A,'9'
