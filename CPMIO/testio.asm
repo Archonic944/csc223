@@ -45,11 +45,8 @@ START1:
 
 ; INPUT (CHAR POINTER) GOES IN HL, RESULT GOES IN DE
 PARSEINT:
-        PUSH A
         PUSH B
-        PUSH C
         PUSH H
-        PUSH L
         LXI D,00H ; CLEAR DE REGISTERS IN PREPARATION
         LXI B,00H ; SAME WITH BC
         MOV A,M
@@ -64,21 +61,13 @@ PARSEINT:
                         STA FLAG
         PLOOP:
                 MOV A,M ; GET CHARACTER
+                
                 CPI A,'0'
                 JNC PLOOPEND
                 CPI A,'9'
                 JC PLOOPEND
                 SUI '0'
                 ADD E
-                PUSH A
-                
-                MOV B,A
-                ASDF:
-                MVI A,'Z'
-                CALL CO
-                DCR B
-                JNZ ASDF
-
                 MOV E,A
                 MOV A,D
                 ACI 00H ; ADD CARRY TO HIGH BYTE (REG B)
@@ -126,11 +115,8 @@ PARSEINT:
         SUB A           ; CLEAR ACCUMULATOR
         JZ NEGATIVE
         POPREGSRET:
-        POP L
         POP H
-        POP C
         POP B
-        POP A
         RET
         NEGATIVE:       ; PERFORM DOUBLE SUBTRACTION
                         SUB D
