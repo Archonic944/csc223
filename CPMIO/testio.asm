@@ -99,6 +99,14 @@ PARSEINT:
         CPI 01H
         SUB A           ; CLEAR ACCUMULATOR
         JZ NEGATIVE
+        POP_REGS_RET:
+        POP L
+        POP H
+        POP E
+        POP D
+        POP C
+        POP B
+        POP A
         RET
         NEGATIVE:       ; PERFORM DOUBLE SUBTRACTION
                         SUB D
@@ -106,7 +114,7 @@ PARSEINT:
                         MVI A,0 ; MVI INSTEAD OF SUB A BECAUSE WE DONT WANT TO TOUCH STATUS BITS
                         SBB E
                         MOV E,A
-                        RET
+                        JMP POP_REGS_RET
 
 
 ; CONSOLE CHARACTER INTO REGISTER A MASKED TO 7 BITS
