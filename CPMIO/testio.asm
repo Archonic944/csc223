@@ -70,6 +70,15 @@ PARSEINT:
                 JC PLOOPEND
                 SUI '0'
                 ADD E
+                PUSH A
+                
+                MOV B,A
+                ASDF:
+                MVI A,'Z'
+                CALL CO
+                DCR B
+                JNZ ASDF
+
                 MOV E,A
                 MOV A,D
                 ACI 00H ; ADD CARRY TO HIGH BYTE (REG B)
