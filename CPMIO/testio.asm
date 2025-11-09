@@ -24,7 +24,7 @@ ZERO    EQU     30H
 ; PROGRAM GOES HERE
 START1:
 
-; INPUT (CHAR POINTER) GOES IN HL, RESULT GOES IN BC
+; INPUT (CHAR POINTER) GOES IN HL, RESULT GOES IN DE
 PARSEINT:
         PUSH A
         PUSH B
@@ -33,14 +33,17 @@ PARSEINT:
         PUSH E
         PUSH H
         PUSH L
+        LXI D,00H ; CLEAR DE REGISTERS IN PREPARATION
+        LXI B,00H ; SAME WITH BC
         MOV A,M
         CPI '-'
         JNZ NON_NEG
-        MVI A,01H
+        LDA FLAG
+        ORI 01H ; SET LSB TO INDICATE SUBTRACTION LATER
         STA FLAG
-        LXI D,00H
         JMP PLOOP
-        NON_NEG:        MVI A,00H
+        NON_NEG:        LDA FLAG
+                        ANI FEH ; MASK OUT LSB TO INDICATE NO SUBTRACTION LATER
                         STA FLAG
         PLOOP:
                 MOV A,M ; GET CHARACTER
@@ -48,13 +51,62 @@ PARSEINT:
                 JNC PLOOP_END
                 CPI A,'9'
                 JC PLOOP_END
+                SUI '0'
+                ADD E
+                MOV E,A
+                MOV A,D
+                ACI 00H ; ADD CARRY TO HIGH BYTE (REG B)
+                MOV D,A
+                MULT_BY_TEN: ; TO DO THIS WE SHIFT THE BYTES LEFT 3 TIMES, THEN ADD THE ORIGINAL VALUES TWICE
+                        MOV B,D ; BACK UP THE PRE-LEFT-SHIFT TOTAL IN BC
+                        MOV C,E
+                        ADI 0   ; RESET CARRY. WE ONLY NEED TO DO THIS ONCE SINCE RAL-ING D SHOULD NOT PUT ANYTHING 
+                                ; OTHER THAN ZERO IN THE CARRY. CONVERSELY WE COULD JC AFTER THE RAL TO DETECT AN OVERFLOW
 
-                JMP PLOOP
-        PLOOP_END:
+                        MOV A,E
+                        MOV E,A
+                        RLC
+                        MOV A,D
+                        RAL
+                        MOV D,A
 
+                        MOV A,E ; REPEAT 1
+                        MOV E,A
+                        RLC
+                        MOV A,D
+                        RAL
+                        MOV D,A
+
+                        MOV A,E ; REPEAT 2
+                        MOV E,A
+                        RLC
+                        MOV A,D
+                        RAL
+                        MOV D,A
+
+                        XCHG    ; SO WE CAN DAD
+                        DAD B
+                        DAD B
+                        DAD B
+                        XCHG
                 
-        
+                INX H   ; INCREMENT ADDRESS
+                JMP PLOOP
 
+        PLOOP_END:
+        LDA FLAG        ; CHECK IF NEGATIVE
+        ANI 01H
+        CPI 01H
+        SUB A           ; CLEAR ACCUMULATOR
+        JZ NEGATIVE
+        RET
+        NEGATIVE:       ; PERFORM DOUBLE SUBTRACTION
+                        SUB D
+                        MOV D,A
+                        MVI A,0 ; MVI INSTEAD OF SUB A BECAUSE WE DONT WANT TO TOUCH STATUS BITS
+                        SBB E
+                        MOV E,A
+                        RET
 
 
 ; CONSOLE CHARACTER INTO REGISTER A MASKED TO 7 BITS
