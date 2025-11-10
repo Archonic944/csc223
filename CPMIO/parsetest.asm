@@ -89,7 +89,7 @@ PARSEINT:
                 JNC PLOOPEND
                 CPI A,'9'
                 JC PLOOPEND
-                SUI '0'
+                SUI '0'q
                 ADD E
                 MOV E,A
                 MOV A,D
@@ -123,7 +123,7 @@ PARSEINT:
                         MOV D,A
 
                         XCHG    ; SO WE CAN DAD
-                        DAD B
+                        DAD B   ; DAD ORIGINAL VALUE
                         DAD B
                         DAD B
                         XCHG
