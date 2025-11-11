@@ -49,7 +49,6 @@ START1:
 ; INPUT (CHAR POINTER) GOES IN HL, RESULT GOES IN DE
 PARSEINT:
         PUSH B
-        PUSH H
         LXI D,00H ; CLEAR DE REGISTERS IN PREPARATION
         LXI B,00H ; SAME WITH BC
         MOV A,M
@@ -58,49 +57,36 @@ PARSEINT:
         LDA FLAG
         ORI 01H ; SET LSB TO INDICATE SUBTRACTION LATER
         STA FLAG
-        INX D
+        INX H
         JMP PLOOP
         NONNEG:
                         LDA FLAG
                         ANI FEH ; MASK OUT LSB TO INDICATE NO SUBTRACTION LATER
                         STA FLAG
         PLOOP:
-
-                MOV A,M ; GET CHARACTER
-                CPI A,'0'
-                JNC PLOOPEND
-                CPI A,'9'+1
-                JC PLOOPEND
-                SUI '0'
-
-                ADD E
-                MOV E,A
-                MOV A,D
-                ACI 00H ; ADD CARRY TO HIGH BYTE (REG B)
-                MOV D,A
                 MULTBYTEN: ; TO DO THIS WE SHIFT THE BYTES LEFT 3 TIMES, THEN ADD THE ORIGINAL VALUES TWICE
                         MOV B,D ; BACK UP THE PRE-LEFT-SHIFT TOTAL IN BC
                         MOV C,E
-                        ADI 0   ; RESET CARRY. WE ONLY NEED TO DO THIS ONCE SINCE RAL-ING D SHOULD NOT PUT ANYTHING 
+                        ANA A   ; RESET CARRY. WE ONLY NEED TO DO THIS ONCE SINCE RAL-ING D SHOULD NOT PUT ANYTHING 
                                 ; OTHER THAN ZERO IN THE CARRY. CONVERSELY WE COULD JC AFTER THE RAL TO DETECT AN OVERFLOW
 
                         MOV A,E
-                        MOV E,A
                         RLC
+                        MOV E,A
                         MOV A,D
                         RAL
                         MOV D,A
 
-                        MOV A,E ; REPEAT 1
-                        MOV E,A
+                        MOV A,E
                         RLC
+                        MOV E,A
                         MOV A,D
                         RAL
                         MOV D,A
 
-                        MOV A,E ; REPEAT 2
-                        MOV E,A
+                        MOV A,E
                         RLC
+                        MOV E,A
                         MOV A,D
                         RAL
                         MOV D,A
@@ -108,8 +94,20 @@ PARSEINT:
                         XCHG    ; SO WE CAN DAD
                         DAD B   ; DAD ORIGINAL VALUE
                         DAD B
-                        DAD B
                         XCHG
+
+                MOV A,M ; GET CHARACTER
+                CPI '0'
+                JC PLOOPEND
+                CPI '9'+1
+                JNC PLOOPEND
+                SUI '0'
+
+                ADD E
+                MOV E,A
+                MOV A,D
+                ACI 00H ; ADD CARRY TO HIGH BYTE (REG B)
+                MOV D,A
                 
                 INX H   ; INCREMENT ADDRESS
                 JMP PLOOP
@@ -117,19 +115,18 @@ PARSEINT:
         PLOOPEND:
         LDA FLAG        ; CHECK IF NEGATIVE
         ANI 01H
-        CPI 01H
-        SUB A           ; CLEAR ACCUMULATOR
-        JZ NEGATIVE
+        JZ POPREGSRET
+        JMP NEGATIVE
         POPREGSRET:
-        POP H
         POP B
         RET
         NEGATIVE:       ; PERFORM DOUBLE SUBTRACTION
-                        SUB D
-                        MOV D,A
-                        MVI A,0 ; MVI INSTEAD OF SUB A BECAUSE WE DONT WANT TO TOUCH STATUS BITS
-                        SBB E
+                        ANI 00H
+                        SUB E
                         MOV E,A
+                        MVI A,0 ; MVI INSTEAD OF SUB A BECAUSE WE DONT WANT TO TOUCH STATUS BITS
+                        SBB D
+                        MOV D,A
                         JMP POPREGSRET
 
 ; PRINTS A SIGNED 16-BIT INTEGER IN DE
