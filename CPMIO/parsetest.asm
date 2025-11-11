@@ -58,31 +58,13 @@ PARSEINT:
         LDA FLAG
         ORI 01H ; SET LSB TO INDICATE SUBTRACTION LATER
         STA FLAG
+        INX D
         JMP PLOOP
-        NONNEG:         PUSH H
-                        CALL SPMSG
-                        DB 'before first lda',CR,LF,0
-                        POP H
+        NONNEG:
                         LDA FLAG
-                        PUSH H
-                        CALL SPMSG
-                        DB 'before sta',CR,LF,0
-                        POP H
                         ANI FEH ; MASK OUT LSB TO INDICATE NO SUBTRACTION LATER
                         STA FLAG
-                        PUSH H
-                        CALL SPMSG
-                        DB 'after sta',CR,LF,0
-                        POP H
-                        PUSH H
-                CALL SPMSG
-                DB 'hello1',CR,LF,0
-                POP H
         PLOOP:
-                PUSH H
-                CALL SPMSG
-                DB 'ugh its looping AGAIN',CR,LF,0
-                POP H
 
                 MOV A,M ; GET CHARACTER
                 CPI A,'0'
@@ -90,11 +72,6 @@ PARSEINT:
                 CPI A,'9'+1
                 JC PLOOPEND
                 SUI '0'
-
-                PUSH H
-                CALL SPMSG
-                DB 'got to subtraction',CR,LF,0
-                POP H
 
                 ADD E
                 MOV E,A
