@@ -76,20 +76,26 @@ PARSEINT:
                         POP H
                         PUSH H
                 CALL SPMSG
-                DB 'ugh its looping AGAIN',CR,LF,0
+                DB 'hello1',CR,LF,0
                 POP H
         PLOOP:
                 PUSH H
                 CALL SPMSG
                 DB 'ugh its looping AGAIN',CR,LF,0
                 POP H
+
                 MOV A,M ; GET CHARACTER
-                CALL CO
                 CPI A,'0'
                 JNC PLOOPEND
-                CPI A,'9'
+                CPI A,'9'+1
                 JC PLOOPEND
-                SUI '0'q
+                SUI '0'
+
+                PUSH H
+                CALL SPMSG
+                DB 'got to subtraction',CR,LF,0
+                POP H
+
                 ADD E
                 MOV E,A
                 MOV A,D
