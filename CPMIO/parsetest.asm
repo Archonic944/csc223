@@ -60,39 +60,38 @@ PARSEINT:
         INX H
         JMP PLOOP
         NONNEG:
-                        LDA FLAG
-                        ANI FEH ; MASK OUT LSB TO INDICATE NO SUBTRACTION LATER
-                        STA FLAG
+                LDA FLAG
+                ANI FEH ; MASK OUT LSB TO INDICATE NO SUBTRACTION LATER
+                STA FLAG
         PLOOP:
                 MOV A,M ; GET CHARACTER
                 CPI '0'
                 JC PLOOPEND
                 CPI '9'+1
                 JNC PLOOPEND
-                SUI '0'
 
                 MULTBYTEN: ; TO DO THIS WE SHIFT THE BYTES LEFT 3 TIMES, THEN ADD THE ORIGINAL VALUES TWICE
                         MOV B,D ; BACK UP THE PRE-LEFT-SHIFT TOTAL IN BC
                         MOV C,E
-                        ANA A   ; RESET CARRY. WE ONLY NEED TO DO THIS ONCE SINCE RAL-ING D SHOULD NOT PUT ANYTHING 
+                        ANI 00H ; RESET CARRY/CLEAR A. WE ONLY NEED TO DO THIS ONCE SINCE RAL-ING D SHOULD NOT PUT ANYTHING 
                                 ; OTHER THAN ZERO IN THE CARRY. CONVERSELY WE COULD JC AFTER THE RAL TO DETECT AN OVERFLOW
 
                         MOV A,E
-                        RLC
+                        RAL
                         MOV E,A
                         MOV A,D
                         RAL
                         MOV D,A
 
                         MOV A,E
-                        RLC
+                        RAL
                         MOV E,A
                         MOV A,D
                         RAL
                         MOV D,A
 
                         MOV A,E
-                        RLC
+                        RAL
                         MOV E,A
                         MOV A,D
                         RAL
@@ -104,6 +103,7 @@ PARSEINT:
                         XCHG
 
                 MOV A,M ; GET CHARACTER AGAIN, SINCE WE CLOBBERED THE REGISTER
+                SUI '0'
                 ADD E
                 MOV E,A
                 MOV A,D
