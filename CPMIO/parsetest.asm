@@ -64,6 +64,13 @@ PARSEINT:
                         ANI FEH ; MASK OUT LSB TO INDICATE NO SUBTRACTION LATER
                         STA FLAG
         PLOOP:
+                MOV A,M ; GET CHARACTER
+                CPI '0'
+                JC PLOOPEND
+                CPI '9'+1
+                JNC PLOOPEND
+                SUI '0'
+
                 MULTBYTEN: ; TO DO THIS WE SHIFT THE BYTES LEFT 3 TIMES, THEN ADD THE ORIGINAL VALUES TWICE
                         MOV B,D ; BACK UP THE PRE-LEFT-SHIFT TOTAL IN BC
                         MOV C,E
@@ -96,13 +103,7 @@ PARSEINT:
                         DAD B
                         XCHG
 
-                MOV A,M ; GET CHARACTER
-                CPI '0'
-                JC PLOOPEND
-                CPI '9'+1
-                JNC PLOOPEND
-                SUI '0'
-
+                MOV A,M ; GET CHARACTER AGAIN, SINCE WE CLOBBERED THE REGISTER
                 ADD E
                 MOV E,A
                 MOV A,D
