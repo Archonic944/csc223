@@ -46,6 +46,49 @@ START1:
         DB 'THATS ALL, FOLKS!',0
         JMP RBOOT   ; END OUR LIL TEST PROGRAM
 
+SWAPBD: ; SWAP B,C AND D,E (UNTESTED)
+        MOV A,D
+        MOV D,B
+        MOV B,A
+        MOV A,E
+        MOV E,C
+        MOV C,A
+        RET
+
+MDPASS:  
+        CALL PARSEINT
+        MOV A,M
+        INX H
+        CPI '*'
+        CZ MULTEXP
+        CPI '/'
+        CZ DIVEXP
+        MOV A,M
+        CPI 0   ; END OF STRING
+        JZ ASPASS
+        INX H
+        JMP MDPASS
+ASPASS:
+        LXI H,INBUF+2
+        
+
+MULTEXP:
+        INX H
+        CALL PARSEINT
+        CALL MULTBCE
+        RET
+DIVEXP:
+        INX H
+        CALL PARSEINT
+        CALL DIVBCDE
+        RET
+
+
+MULTBCE:       ; MULTIPLY BC BY E
+
+DIVBCDE:
+
+
 ; INPUT (CHAR POINTER) GOES IN HL, RESULT GOES IN DE
 PARSEINT:
         PUSH B
@@ -217,8 +260,6 @@ DONE:
         POP B
         POP PSW
         RET
-
-
 
 ; CONSOLE CHARACTER INTO REGISTER A MASKED TO 7 BITS
 CI:     PUSH    B               ; SAVE REGISTERS
