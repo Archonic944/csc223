@@ -26,4 +26,36 @@ More about wildcards: The FCB may contain the ? character if the user specified 
 
 ## How CP/M uses the FCB
 
-- 
+The minimum size of any file is 1024 bytes (1k).
+
+CP/M allocates disk space in "groups" of 8 records each.
+
+The convenience of this system is that instead of every record being in the address space, it's less granular. One byte can store the address to a single group. CP/M handles translating group number to the group's starting record address.
+
+## Creating a disk file
+
+CP/M allocates by finding the lowest numbered disk group not allocated to another file. The first time we write, that address is placed into byte d0 in the FCB.
+
+As we write, CP/M updates the record count and cr. Each group of 8 records written fills the next disk allocation byte with the next lowest unallocated group number.
+
+When we close the file, CP/M writes the first 32 bytes of the FCB to the disk directory. This is a **directory entry**. The drive select byte is zeroed because the directory entry has to be on the same disk as the data.
+
+Erasing the file doesn't zero out the data on disk, it just marks the entry as deleted by changing the first byte of the filename to E5h. The space is then available for new files.
+
+"Dynamic disk space allocaton" refers to how entire directory entries can be overwritten in a nonlinear fashion as files are created and deleted.
+
+TABLE 15-1. The library of user subroutines constructed by
+completing all of the exercises in this book.
+
+## Table 15-1
+| Source Listing | File Name    | Contents                          |
+|----------------|--------------|-----------------------------------|
+| 15-2           | DISKEQU.LIB  | Data and address value assignments
+|                |              | for disk programs.                |
+| 15-1           | SHOFN.LIB    | Show file name subroutine.        |
+| 16-1           | GET.LIB      | GET: a file from disk subroutine. |
+| 17-1           | PUT.LIB      | PUT: a file onto disk subroutine. |
+| 16-2           | DISKSU.LIB   | Disk subroutines, miscellaneous.  |
+| (Part of      | CPMIO.LIB    | Input/output subroutines.         |
+| CPMIO.ASM)     |              |                                   |
+| 16-3           | RAM.LIB      | Memory area assignments.          |
