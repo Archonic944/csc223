@@ -21,6 +21,10 @@ START:  LXI     SP,STAK         ; SET UP USER'S STACK
 
 ZERO    EQU     30H
 
+; EXP.ASM SPECIAL CHARS
+INTSTART   EQU     1    ; BEGIN INTERMEDIATE VALUE (BINARY)
+INTSKIP    EQU     2    ; SKIP BYTE
+
 ; PROGRAM GOES HERE
 START1:
         CALL SPMSG
@@ -55,38 +59,9 @@ SWAPBD: ; SWAP B,C AND D,E (UNTESTED)
         MOV C,A
         RET
 
-MDPASS:  
-        CALL PARSEINT
-        MOV A,M
-        INX H
-        CPI '*'
-        CZ MULTEXP
-        CPI '/'
-        CZ DIVEXP
-        MOV A,M
-        CPI 0   ; END OF STRING
-        JZ ASPASS
-        INX H
-        JMP MDPASS
-ASPASS:
-        LXI H,INBUF+2
-        
 
-MULTEXP:
-        INX H
-        CALL PARSEINT
-        CALL MULTBCE
-        RET
-DIVEXP:
-        INX H
-        CALL PARSEINT
-        CALL DIVBCDE
-        RET
+EVAL:
 
-
-MULTBCE:       ; MULTIPLY BC BY E
-
-DIVBCDE:
 
 
 ; INPUT (CHAR POINTER) GOES IN HL, RESULT GOES IN DE
@@ -352,5 +327,6 @@ GETYN:  CALL    SPMSG
 
 INBUF:  DS      83              ; LINE INPUT BUFFER
 FLAG: DS 1 ; FLAG BYTE FOR USE BY THE PROGRAM
+PTR
 
         END

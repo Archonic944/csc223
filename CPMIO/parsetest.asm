@@ -244,10 +244,6 @@ CO:     PUSH    B               ; SAVE REGISTERS
         POP     B
         RET
 
-        ; SET UP STACK SPACE
-DS      64              ; 40H LOCATIONS
-STAK:   DB      0               ; TOP OF STACK
-
 ; CARRIAGE RETURN, LINE FEED TO CONSOLE
 TWOCR:  CALL    CCRLF           ; DOUBLE SPACE LINES
 CCRLF:  MVI     A,CR
@@ -311,5 +307,8 @@ GETYN:  CALL    SPMSG
 
 INBUF:  DS      83              ; LINE INPUT BUFFER
 FLAG: DS 1 ; FLAG BYTE FOR USE BY THE PROGRAM
+        ; SET UP STACK SPACE
+DS      64              ; 40H LOCATIONS
+STAK:   DB      0               ; TOP OF STACK
 
         END
