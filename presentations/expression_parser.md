@@ -12,3 +12,5 @@ of the parser's logic.
 The parentheses stack is the main engine that makes the program go. When a 
 
 ## Intermediate Values
+
+## Switch Statement
