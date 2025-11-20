@@ -40,11 +40,11 @@ Instead, these intermediate calculation results are stored as a binary blob inse
 
 ## Intermediate Values
 
-In our program, every calculation occurs between two operands, has one operator, and yields a single result. So, how do we handle 4+3+2?
+In our program, every calculation occurs between two operands, has one operator, and yields a single result. So, how do we handle 4\*3\*2?
 
-First, 4+3 is evaluated in the manner described above. The result (12) is stored back into the string buffer as a 16 bit signed integer. It overwrites "4+3" (ASCII) with `12` (a binary number).
+First, 4\*3 is evaluated in the manner described above. The result (12) is stored back into the string buffer as a 16 bit signed integer. It overwrites "4\*3" (ASCII) with `12` (a binary number).
 
-However, now we have mixed binary values with ascii values, which could get messy. Also, what if we have something like 15x43? The 16-bit signed integer will only take up two bytes. But the original expression (15x43) has **five characters.** Our intermediate value should completely overwrite the expression.
+However, now we have mixed binary values with ascii values, which could get messy. Also, what if we have something like 15\*43? The 16-bit signed integer will only take up two bytes. But the original expression (15\*43) has **five characters.** Our intermediate value should completely overwrite the expression.
 
 So, the intermediate value needs a special structure. which takes advantage of the fact that ASCII is a 7-bit encoding:
 
@@ -60,7 +60,7 @@ You'll notice that the "special structure is really just one thing... a "skip by
 
 You know what never sets the highest bit? ASCII. Therefore, when the parser sees the highest bit set, we know a binary value is coming down the pipe.
 
-The rest of the skip byte is a 7 bit unsigned integer that represents **how much garbage we need to skip over.** Our original expression, 4x3, would have no garbage. Since it is 3 bytes, we can overwrite it perfectly:
+The rest of the skip byte is a 7 bit unsigned integer that represents **how much garbage we need to skip over.** Our original expression, 4\*3, would have no garbage. Since it is 3 bytes, we can overwrite it perfectly:
 
 1. Skip byte (containing the set highest bit, then `0`.
 2. Low byte of integer
@@ -172,10 +172,10 @@ SWITCHNEXT:
         ; return address is already in stack so hook case simply needs to return
 ```
 
-Our "switch statement" is really just cases (single byte) followed by memory locations (two bytes).
+Our "switch statement" is a series of cases cases (single byte) each followed by memory locations (two bytes).
 You define those and then call SWITCH.
 
-The "memory locations" after each case byte are called "hooks" because they are machine code.
+The "memory locations" after each case byte are called "hooks" because they point to machine code. That machine code is a "hook" that gets executed if the case check succeeds.
 SWITCH starts at the first case, compares it to the target value, and if the comparison succeeds (`JZ` instruction), then it jumps to the hook.
 
 If the comparison fails, it increments the pointer three times to skip the current case as well as the two address bytes.
