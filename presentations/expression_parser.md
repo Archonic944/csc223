@@ -29,44 +29,49 @@ For individual calculations, the program parses the left operand, stores it in D
 
 After the calculation is finished, the result goes in DE. DE (the result of the calculation) then **replaces the original expression**. This allows for chained operations.
 
-For example, if the expression was $4\times3\times2$, $12$ would be stored in place of $4\times3$, and then $12\times2$ would be calculated. Rinse and repeat until we're finished, then do it again for the addition/subtraction pass.
+For example, if the expression was `"4*3*2"`, `12` would be stored in place of `"4*3"`, and then `"12*2"` would be calculated. Rinse and repeat until we're finished, then do it again for the addition/subtraction pass.
 
 However, we don't simply insert more ASCII into the original buffer. That would require:
 
-1. parsing additional strings
-2. resizing the buffer (BAD!)
+1. Resizing the buffer (Dangerous)
+2. Shifting all subsequent characters down a few slots each time (SO SLOW!)
+3. Parsing and printing additional strings
 
 Instead, these intermediate calculation results are stored as a binary blob inserted directly *into* the ASCII. We can then continue to parse the expression seamlessly. More on that now...
 
 ## Intermediate Values
 
-In our program, every calculation occurs between two operands, has one operator, and yields a single result. So, how do we handle 4\*3\*2?
+In our program, every calculation occurs between two operands, has one operator, and yields a single result. So, how do we handle `"4+3+2"`?
 
-First, 4\*3 is evaluated in the manner described above. The result (12) is stored back into the string buffer as a 16 bit signed integer. It overwrites "4\*3" (ASCII) with `12` (a binary number).
+First, `4+3` is evaluated in the manner described above. The result (7) is stored back into the string buffer as a 16 bit signed integer. It overwrites `"4+3"` (ASCII) with `7` (a binary number). It puts that binary **back directly into the ASCII stream.**
 
-However, now we have mixed binary values with ascii values, which could get messy. Also, what if we have something like 15\*43? The 16-bit signed integer will only take up two bytes. But the original expression (15\*43) has **five characters.** Our intermediate value should completely overwrite the expression.
+However, now we have mixed binary values with ASCII values, which could get messy. Also, what if we have something like `"15x43"`? The 16-bit signed integer will only take up two bytes. But the original expression (`"15x43"`) has **five characters.**
+
+> Remember, one of the goals of using binary intermediate results was to avoid the slow process of shifting the entire string to the left or the right when inserting a new result. Therefore, the result should take up the same space in the buffer as the original expression. 
 
 So, the intermediate value needs a special structure. which takes advantage of the fact that ASCII is a 7-bit encoding:
 
 ```
-Offset from P:   0                1 ... (1+skip)−2      (1+skip)−1   (1+skip)
+Offset from P:   0                1 ... (skip-1)         (skip+1)     (skip+2)
                  ┌──────────────┬──────────────────────┬────────────┬────────────┐
 Bytes:           │  SKIP BYTE   │    (unused / old     │  VALUE_LO  │  VALUE_HI  │
                  │ (flag+count) │   expression bytes)  │   (E)      │   (D)      │
                  └──────────────┴──────────────────────┴────────────┴────────────┘
 ```
 
-You'll notice that the "special structure is really just one thing... a "skip byte." The highest bit of the skip byte is always set.
+You'll notice that the "special structure" is really just one thing... a "skip byte." The highest bit of the skip byte is always set.
 
 You know what never sets the highest bit? ASCII. Therefore, when the parser sees the highest bit set, we know a binary value is coming down the pipe.
 
-The rest of the skip byte is a 7 bit unsigned integer that represents **how much garbage we need to skip over.** Our original expression, 4\*3, would have no garbage. Since it is 3 bytes, we can overwrite it perfectly:
+The rest of the skip byte is a 7 bit unsigned integer that represents **how many garbage bytes we need to skip over.** Our original expression, `4x3`, would have no garbage. Since it is 3 bytes, we can overwrite it perfectly:
 
-1. Skip byte (containing the set highest bit, then `0`.
+1. Skip byte (containing the set highest bit), then `0`.
 2. Low byte of integer
 3. High byte of integer
 
-However, our other expression, $15\times43$, would need to have a skip byte of 2, since there would be two extra characters (x and 4) that the parser needs to skip over to get to the real binary data.
+However, our other expression, `"15*43"`, would need to have a skip byte of 2, since there would be two extra characters (`'5'` and `'*'`) that the parser needs to skip over to get to the real binary data. 
+
+> This works great for our purposes because it allows us to fit intermediates in the smallest equation we will see, 3 bytes for two numbers and an operator, and still completely covers extremely long expressions. This means that the parser will never have to resize the buffer to put the result in or see some of the original expression peaking out from under the intermediate result and get confused.
 
 After all that work, the parser can just read intermediates as if they were a part of the original expression. 
 
@@ -75,25 +80,27 @@ After all that work, the parser can just read intermediates as if they were a pa
 Now we have gotten to the fun part. This whole document, I have been lying to you, as all good educators do. We don't simply run over the **whole string** twice like cavemen. The program keeps a parentheses stack, and evaluates **parts** of the expression twice. Here's how it works:
 
 1. When the parser sees an **open parenthesis**, it pushes that location to the parenthesis stack.
-2. When parser sees a **close parentheses**, it pops the last open parenthesis location, and evaluates from there to the current location. Both the multiplication/div/etc pass and the addition/subtraction pass is performed over its length. That entire parenthetical expression is then replaced with a binary intermediate value.
+2. When parser sees a **close parenthesis**, it pops the last open parenthesis location, and evaluates from there to the current location. Both the multiplication/div/etc pass and the addition/subtraction pass is performed over its length. That entire parenthetical expression is then replaced with a binary intermediate value.
+3. When we get to the **very end** of the expression (0 terminator), the entire expression is evaluated.
 
 And that's it!
 
-> It's actually quite beautiful... I can't remember who came up with it. Was it me or Brendan? What am I saying?! I'm writing this document. Let the record show that ***I*** came up with it.
+### Multiple stacks; how??
 
-Having multiple stacks going on the 8080 (the paren stack and the call stack) is a tiny bit hacky. To switch between stacks we:
+Having multiple stacks going on the 8080 (the paren stack and the call stack) is a tiny bit hacky. Instead of just using `DS` to allocate room for one stack, we allocate two separate stacks with two `DS` calls. We also assign a place in memory to store our secondary stack pointer with a label and a `DW` instruction. To use the other stack we:
 
-1. Clear HL
-2. Use `DAD SP` to get call stack pointer into `HL`
+1. Clear `HL`
+2. Use `DAD SP` to get the **call stack** pointer into `HL`
 3. Put `HL` somewhere safe
 4. Load parentheses stack pointer into `HL`
 5. Use `SPHL` to load `HL` into `SP`
-
-Then, we can push and pop from the parentheses stack. Doing that whole dance again restores us to the call stack.
+6. Make our `PUSH` and `POP` calls
+7. Update and save the secondary stack pointer accordingly
+8. And restore the call stack
 
 ## BONUS - Switch Statement
 
-To make certain things easier, like choosing what operation to perform based on a character, we cooked up a simple switch statement implementation.
+To make certain things easier, like choosing what operation to perform based on a character, "we" (Brendan) cooked up a simple switch statement implementation.
 
 In Java, a switch statement looks like this:
 
@@ -129,56 +136,64 @@ switch (day) {
 In assembly, our switch statement looks like this:
 
 ```asm
-MULTPASS: DB '*',EVALMULT,'<',EVALLS,'>',EVALRS,'/',EVALDIV,'%',EVALMOD,'+',EVALSKIP,'-',EVALSKIP,0,EVALDEFAULT
-LHLD CURRENTPASS
+MULTPASS: DW '*',EVALMULT,'<',EVALLS,'>',EVALRS,'/',EVALDIV,'%',EVALMOD,'+',EVALSKIP,'-',EVALSKIP,DEFAULT,EVALDEFAULT
+...
+
+; Test character already in A
+LXI H,MULTPASS
 JMP SWITCH
 ```
 
 And here's the implementation, comments and all:
 
 ```asm
-SWITCH: ; A = switch character, HL = pointer to DB with case,hook_address,case,hook_address,0,default_case_hook_address
-        ; HL is set to PC after jump so caller must preserve HL if they want it saved 
+SWITCH: ; A = switch character, HL = pointer to DW with case,hook_address,case,hook_address,(#>255),default_case_hook_address
+        ; HL is saved
         ; stack has return address on top then any previous pushes below
-        ; so if you run PUSH H; CALL SWITCH, then you will need to run POP H; XTHL
+        ; so if you run PUSH H; LXI H,DWTHING; CALL SWITCH, then you will need to run POP H; XTHL
         ; to get the return address to the top of the stack and HL back from the push
 
-
+        PUSH H
+SWITCHLOOP:
         PUSH PSW ; save A
-        MOV A,M ; test CASE value
-        CPI 0 ; if CASE value is 0
-        JZ SWITCHDEFAULT ; use case as default and execute case
+        INX H
+        MOV A,M ; test second byte of CASE value
+        DCX H
+        CPI 0 ; if second byte value is not 0, the case was not a single byte number or ASCII character
+        JNZ SWITCHDEFAULT ; use case as default and execute case
 
         POP PSW ; restore A
         CMP M ; compare with CASE value
         JZ SWITCHNEXT ; if is equal, execute case
-        INX H ; else HL += 3, continue
+        INX H ; else HL += 4 and continue
         INX H
         INX H
-        JMP SWITCH
+        INX H
+        JMP SWITCHLOOP
 
 SWITCHDEFAULT:
         POP PSW
 SWITCHNEXT:
         PUSH D ; load hook into HL
         INX H ; load LS byte
+        INX H
         MOV E,M
         INX H ; load MS byte
         MOV D,M
         XCHG
         POP D
 
-        PCHL ; jump to hook
-        ; return address is already in stack so hook case simply needs to return
+        XTHL ; put jump address on top of stack for return call and restore HL_0
+        RET ; jump to hook
 ```
 
-Our "switch statement" is a series of cases cases (single byte) each followed by memory locations (two bytes).
-You define those and then call SWITCH.
+Our "switch statement" is really just pairs of character cases (two bytes) and memory locations (two bytes).
+You define those and then call or jump to SWITCH.
 
-The "memory locations" after each case byte are called "hooks" because they point to machine code. That machine code is a "hook" that gets executed if the case check succeeds.
+The "memory locations" after each case byte are called "hooks" because they are machine code.
 SWITCH starts at the first case, compares it to the target value, and if the comparison succeeds (`JZ` instruction), then it jumps to the hook.
 
-If the comparison fails, it increments the pointer three times to skip the current case as well as the two address bytes.
+If the comparison fails, it increments the pointer four times to skip the current case and the two address bytes.
 
 Our switch statement even supports a default case!
 
