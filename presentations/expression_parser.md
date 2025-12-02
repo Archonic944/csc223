@@ -85,7 +85,9 @@ Now we have gotten to the fun part. This whole document, I have been lying to yo
 
 And that's it!
 
-### Multiple stacks; how??
+> It's actually quite beautiful... I can't remember who came up with it. Was it me or Brendan? (Brendan is editing this document now and he distinctly recalls explaining this to Gabe repeatedly). Let the record show that ***Brendan*** came up with it.
+
+(Gabe is once again editing the document and can confirm that Brendan did indeed come up with it.)
 
 Having multiple stacks going on the 8080 (the paren stack and the call stack) is a tiny bit hacky. Instead of just using `DS` to allocate room for one stack, we allocate two separate stacks with two `DS` calls. We also assign a place in memory to store our secondary stack pointer with a label and a `DW` instruction. To use the other stack we:
 
@@ -136,7 +138,7 @@ switch (day) {
 In assembly, our switch statement looks like this:
 
 ```asm
-MULTPASS: DW '*',EVALMULT,'<',EVALLS,'>',EVALRS,'/',EVALDIV,'%',EVALMOD,'+',EVALSKIP,'-',EVALSKIP,DEFAULT,EVALDEFAULT
+MULTPASS: DW '*',EVALMULT,'<',EVALLS,'>',EVALRS,'/',EVALDIV,'%',EVALMOD,'+',EVALSKIP,'-',EVALSKIP,256,EVALDEFAULT
 ...
 
 ; Test character already in A
@@ -150,7 +152,7 @@ And here's the implementation, comments and all:
 SWITCH: ; A = switch character, HL = pointer to DW with case,hook_address,case,hook_address,(#>255),default_case_hook_address
         ; HL is saved
         ; stack has return address on top then any previous pushes below
-        ; so if you run PUSH H; LXI H,DWTHING; CALL SWITCH, then you will need to run POP H; XTHL
+        ; so if you run PUSH H; LXI H,DW_THING; CALL SWITCH, then you will need to run POP H; XTHL
         ; to get the return address to the top of the stack and HL back from the push
 
         PUSH H
@@ -187,19 +189,19 @@ SWITCHNEXT:
         RET ; jump to hook
 ```
 
-Our "switch statement" is really just pairs of character cases (two bytes) and memory locations (two bytes).
-You define those and then call or jump to SWITCH.
+Our "switch statement" is really just cases (a character byte and a padding byte) 
+followed by memory locations (two bytes). You define those and then call or jump to SWITCH.
 
-The "memory locations" after each case byte are called "hooks" because they are machine code.
+The "memory locations" after each cases are called "hooks," they are machine code version of function pointers.
 SWITCH starts at the first case, compares it to the target value, and if the comparison succeeds (`JZ` instruction), then it jumps to the hook.
 
-If the comparison fails, it increments the pointer four times to skip the current case and the two address bytes.
+If the comparison fails, it increments the pointer four times to skip the current case as well as the padding from DW and the two address bytes.
 
-Our switch statement even supports a default case!
+Our switch statement even supports a default case and fallthrough (I am sure everyone will appreciate fallthrough down the line with no annoying bugs)!
 
 ---------------------
 
 Well, that's it. I hope you enjoyed.
 
 Brendan's GH: @BrendanO123
-My GH: @Archonic944
+Gabe's GH: @Archonic944
