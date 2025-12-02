@@ -1,7 +1,19 @@
 # Brendan and Gabe's PMDAS Expression Parser
-*Implementation link: https://github.com/BrendanO123/csc215/blob/main/PMDAS.ASM*
+*Implementation link: [programs/pmdas.asm](/programs/pmdas.asm)*
 
 For our final project, Brendan and I wrote a mathematical expression parser in assembly.
+
+## Try it
+
+It runs on CP/M 2.2, which, reasonably, you probably don't use. Here is a recorded demo:
+
+![pmdas-trim](https://github.com/user-attachments/assets/ae43dad7-ee38-4f02-8950-7eb7790073ac)
+
+And here is a harder test case:
+
+![pmdas-trim-2](https://github.com/user-attachments/assets/8602bc7f-73bc-41d7-aa05-62962e66051f)
+
+-----------
 
 Since it would be a pain to explain every single math helper and every single parse loop, this file will give a high level explanation
 of the parser's logic.
@@ -204,4 +216,5 @@ Our switch statement even supports a default case and fallthrough (I am sure eve
 Well, that's it. I hope you enjoyed.
 
 Brendan's GH: @BrendanO123
+
 Gabe's GH: @Archonic944
