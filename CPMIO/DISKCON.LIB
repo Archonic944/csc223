@@ -59,9 +59,9 @@ SHOFN:  PUSH    B
         STA     FCBEX
         LXI     H,TFCB ; SHOW DISK DRIVE
         MOV     A,M
-        ANI     OFH     ; LIMIT TO 4 BIT
+        ANI     0FH     ; LIMIT TO 4 BIT
         ORI     40H     ; CONVERT TO ASCII
-        CALL
+        CALL    CO
         MVI     A,':'
         CALL    CO
         INX     H
@@ -120,7 +120,7 @@ GET:    LXI     H,BUFFR        ; GET BUFFER START
         DB      'CAN NOT FIND ',0
         CALL    SHOFN          ; SHOW FILE NAME
 ERREX:  CALL    TWOCR          ; ERROR EXIT TO CP/M
-        JMP     DONE
+        JMP     RBOOT
 
 GET1:   XRA     A              ; ZERO RECORD COUNTER
         STA     RECCT          ; AND READ A FILE INTO BUFFR
