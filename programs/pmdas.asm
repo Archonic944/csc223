@@ -55,22 +55,26 @@ START:  LXI     SP,STAK         ; SET UP USER'S STACK
         LDA     TFCB+1          ; CHECK IF A FILE WAS PROVIDED
         CPI     ' '
         JZ      NOFILE
-        
+
         XRA     A
         STA     FCBCR
         CALL    GET
 
         LXI     H,BUFFR
+        MVI A,0
+        STA EofFlag
+        STA LineCount
+LineLoop:
         LXI     D,INBUF+2
         MVI     C,INBUFSIZE
 
 CPLOOP: MOV     A,M     ; COPIES TO INBUF
         CPI     1AH     ; EOF CHECK
-        JZ      CPDONE
+        JZ      FileDone
         CPI     CR      ; CARRIAGE RETURN CHECK
         JZ      CPDONE
         CPI     0       ; NULL CHECK
-        JZ      CPDONE
+        JZ      FileDone
         
         STAX    D
         INX     H
@@ -78,18 +82,58 @@ CPLOOP: MOV     A,M     ; COPIES TO INBUF
         DCR     C
         JNZ     CPLOOP  ; COPY ANOTHER CHARACTER
 
+FileDone:
+        MVI A,128
+        STA EofFlag
 CPDONE: XRA     A       ; CLEAR ACCUMULATOR
         STAX    D       ; ADD NULL TERMINATOR (FOR PARSER)
+        PUSH H
         LXI H,INBUF+2
         CALL EVALEQUATION
-        CALL APPENDDE
+        POP H
+        PUSH D
+
+        INX H
+        INX H
+
+        LDA LineCount
+        INR A
+        STA LineCount
+
+        LDA EofFlag
+        RAL
+        JNC LineLoop
         JMP TestEnd
 
 NOFILE: CALL SPMSG
         DB 'NO FILE ARGUMENT. DEFAULTING...',CR,LF,0
         CALL CIEQUATION
+        JMP SIGNOUT
 
 TestEnd:
+        LDA LineCount
+ReverseLoop:
+        POP D
+        PUSH PSW
+        XCHG 
+        CALL AUXPUSH 
+        POP PSW 
+        DCR A 
+        JNZ ReverseLoop
+
+        MVI A,1 ; silence APPENDDE
+        STA SilentPut
+
+        LDA LineCount
+AppendLoop:
+        PUSH PSW
+        CALL AUXPOP
+        CALL APPENDDE
+        POP PSW
+        DCR A
+        JNZ AppendLoop
+
+SIGNOUT:
         CALL SPMSG
         DB 'THATS ALL, FOLKS!',0
         JMP RBOOT   ; END TEST PROGRAM
@@ -103,6 +147,7 @@ CIEQUATION:
 	CALL SPMSG
 	DB 'NO SPACES. PARENTHESES ALLOWED.',CR,LF,'SUPPORTED OPERATIONS:',CR,LF
 	DB '+ - / * % < >',CR,LF,0'
+
         CALL CIMSG
         LXI H,INBUF+2   ; POINT TO FIRST CHARACTER
         CALL ENDL
@@ -992,6 +1037,15 @@ GETYN:  CALL    SPMSG
 
 ;---------------------------------------------------
 
+SCANEOF:
+        MOV A,M
+        CPI 1AH         ; CP/M EOF Marker
+        RZ FOUNDEOF
+        CPI 0           ; Safety check for empty buffer
+        RZ FOUNDEOF
+        INX H
+        JMP SCANEOF
+
 ; APPENDS CR, LF, AND THE NUMBER IN DE TO THE FILE
 APPENDDE:
         PUSH B
@@ -1003,15 +1057,7 @@ APPENDDE:
 
         ; 2. FIND END OF FILE DATA IN BUFFR (Look for EOF/1AH)
         LXI H,BUFFR
-SCANEOF:
-        MOV A,M
-        CPI 1AH         ; CP/M EOF Marker
-        JZ FOUNDEOF
-        CPI 0           ; Safety check for empty buffer
-        JZ FOUNDEOF
-        INX H
-        JMP SCANEOF
-
+        CALL SCANEOF
 FOUNDEOF:
         ; 3. WRITE CR, LF
         MVI M,CR
@@ -1223,14 +1269,19 @@ GET3:   LDA     RECCT          ; COUNT THE RECORD
         SHLD    NEXT           ; STOP BELOW CCP
         LDA     MEMAX          ; COMPARE MSB
         DCR     A
+        DCR     A
         CMP     H
-        JNZ     GET2           ; CONTINUE IF NOT EQUAL
+        JNC     GET2           ; CONTINUE IF LESS THAN BOUND
         CALL    TWOCR          ; ELSE SHOW OUT OF MEMORY
         CALL    SPMSG
         DB      'OUT OF MEMORY',0
         JMP     ERREX          ; AND GIVE UP
 
 GETEX:  ; NORMAL EXIT
+        LXI H,BUFFR
+        CALL SCANEOF
+        INX H 
+        MVI M,0
         CALL    CPDMA          ; RESTORE CP/M DMA
         RET
 
@@ -1268,11 +1319,15 @@ PUT1:   MVI     C,INITF
         ;CALL    GETYN
         ;JNZ     PUTEX
 
+        LDA SilentPut ; test if put should be silent
+        ORA A 
+        JNZ PutPrintEnd ; if so, skip print
         CALL SPMSG
         DB 'WROTE TO ',0
         CALL SHOFN
         CALL CCRLF
 
+PutPrintEnd:
         LXI     D,TFCB
         MVI     C,DELEF
         CALL    BDOS
@@ -1312,7 +1367,12 @@ PUT4:   LDA     RECCT
         LDA     CTSAV
         STA     RECCT
 
-PUTEX:  CALL    CCRLF
+PUTEX:  
+        LDA SilentPut ; test if put should be silent
+        ORA A 
+        JNZ PUTEX2
+        CALL    CCRLF
+PUTEX2:        
         CALL    CPDMA
         RET
 
@@ -1322,6 +1382,9 @@ INBUFSIZE EQU 128
 INBUF:  DS      INBUFSIZE+3         ; LINE INPUT BUFFER
 STRBUFF: DS 16
 FLAG:   DS      1 ; FLAG BYTE FOR USE BY THE PROGRAM
+EofFlag: DS 1
+LineCount: DB 0
+SilentPut: DB 0
 DRSAV:  DS      1
 RECCT:  DS      1
 CTSAV   DS      1
