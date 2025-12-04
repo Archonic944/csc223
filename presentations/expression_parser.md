@@ -97,10 +97,6 @@ Now we have gotten to the fun part. This whole document, I have been lying to yo
 
 And that's it!
 
-> It's actually quite beautiful... I can't remember who came up with it. Was it me or Brendan? (Brendan is editing this document now and he distinctly recalls explaining this to Gabe repeatedly). Let the record show that ***Brendan*** came up with it.
-
-(Gabe is once again editing the document and can confirm that Brendan did indeed come up with it.)
-
 Having multiple stacks going on the 8080 (the paren stack and the call stack) is a tiny bit hacky. Instead of just using `DS` to allocate room for one stack, we allocate two separate stacks with two `DS` calls. We also assign a place in memory to store our secondary stack pointer with a label and a `DW` instruction. To use the other stack we:
 
 1. Clear `HL`
