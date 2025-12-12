@@ -18,7 +18,7 @@ And here is a harder test case:
 Since it would be a pain to explain every single math helper and every single parse loop, this file will give a high level explanation
 of the parser's logic.
 
-This is a **broad simplification** of the parser. The real thing is about 900 lines of assembly. You are free to read through that; it can be found on Brendan's repo.
+This is a **broad simplification** of the parser. The real thing is about 900 lines of assembly. You are free to read through that; check the top of the page.
 
 ## Evaluation Logic
 
