@@ -15,11 +15,11 @@ main() {
     biggest++;
     printf("Add another 1 to biggest and we get %d!\n", biggest);
     ubiggest--;
-    printf("Subtract 1 from ubiggest and we get %d!\n", ubiggest);
+    printf("Subtract 1 from ubiggest and we get %u!\n", ubiggest);
     ubiggest = -65535;
-    printf("ubiggest = -65535: %d\n", ubiggest);
+    printf("ubiggest = -65535: %u\n", ubiggest);
     ubiggest = -1;
-    printf("ubiggest = -1: %d\n", ubiggest);
+    printf("ubiggest = -1: %u\n", ubiggest);
     n =  65000;
     m = 3;
     prod = n * m;
