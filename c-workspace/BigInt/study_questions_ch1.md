@@ -113,3 +113,26 @@ Describe the strengths and weaknesses of this approach.
 
 The strength is that this doesn't require an exception handling system, and still allows us to branch based on errors. The weakness is that we would have to check the global variable after every operation, which is tedious and error-prone.
 
+# Page 17
+
+1. A char vector is used instead of an int vector to store the digits because we only need 0-9. An integer would be overkill.
+
+If we changed the kind of element stored in the vector, implementation of the member functions would depend on the new type. For example, if we used ints instead of chars, we would have to allocate more space, but the arithmetic operations would not have to convert the character to a number. We could also choose to pack the BigInt into a byte representation, where each byte stores multiple digits. In that case, the number would be stored in a binary format, making it more efficient, but more complicated to implement.
+
+2. We could use a boolean instead of an enum for storing the sign. 
+
+3. int GetDigit(int k) const;
+
+```cpp
+int BigInt::GetDigit(int k) const{
+    if(k < 0 || k >= GetNumDigits()){
+        return -1;
+    }
+
+    return digits[k] - '0';
+}
+```
+
+4. It will be difficult to write the non-member operators because GetDigit is private.
+
+5. I don't know what an "apvector" is. But I'm guessing it's because the vector is variable size.
