@@ -53,6 +53,7 @@ char *strI[], *strJ[]; {
     if (strcmp(strI, strJ) == 0) {
         PASS();
     } else {
+        printf("\t%s != %s", strI, strJ);
         FAIL();
     }
 }
