@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-// EXERCISE 5-2 - strcat with pointers
-
 strcat(s, t)
 char *s, *t;
 {
@@ -19,8 +17,8 @@ atoi(s, result)
 char *s;
 int* result;
 {
-    *result = 0;
     char c;
+    *result = 0;
 
     for(c = 0; (c = *s++) != 0; ){
         if(c < '0' || c > '9'){
@@ -37,7 +35,8 @@ char *s;
 {
     int i;
     int sign;
-    char *p = s;
+    char *p;
+    p = s;
     if((sign = n) < 0){
         n = -n;
     }
@@ -59,8 +58,8 @@ char *str;
 int len;
 {
     char *end;
-    end = str + sizeof(char) * len - sizeof(char);
     char temp;
+    end = str + len - 1;
     while(str < end){
         temp = *str;
         *str++ = *end;
