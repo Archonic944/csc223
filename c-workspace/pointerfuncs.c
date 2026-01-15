@@ -5,6 +5,9 @@
 strcat(s, t)
 char *s, *t;
 {
+    while (*s != '\0'){
+        s++;
+    }
     while((*s = *t) != '\0'){
         s++;
         t++;
@@ -25,6 +28,7 @@ int* result;
         }
         *result = *result * 10 + (c - '0');
     }
+    return(0);
 }
 
 itoa(n, s)
@@ -33,18 +37,21 @@ char *s;
 {
     int i;
     int sign;
+    char *p = s;
     if((sign = n) < 0){
         n = -n;
     }
     i = 0;
     do{
         *s++ = n % 10 + '0';
+        i++;
     }while((n /= 10) > 0);
     if(sign < 0){
         *s++ = '-';
+        i++;
     }
-    *s = 0;
-    reverse(s, i);
+    *s = '\0';
+    reverse(p, i);
 }
 
 reverse(str, len)
