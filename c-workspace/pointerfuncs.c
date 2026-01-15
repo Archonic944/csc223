@@ -10,12 +10,12 @@ char *s, *t;
         s++;
         t++;
     }
-} 
+}
 
 
 atoi(s, result)
 char *s;
-int* result;
+int *result;
 {
     char c;
     *result = 0;
@@ -44,25 +44,25 @@ char *s;
     do{
         *s++ = n % 10 + '0';
         i++;
-    }while((n /= 10) > 0);
+    }while((n = n / 10) > 0);
     if(sign < 0){
         *s++ = '-';
         i++;
     }
     *s = '\0';
-    reverse(p, i);
+    revstr(p, i);
 }
 
-reverse(str, len)
+revstr(str, len)
 char *str;
 int len;
 {
-    char *end;
+    char *p2;
     char temp;
-    end = str + len - 1;
-    while(str < end){
+    p2 = str + len - 1;
+    while(str < p2){
         temp = *str;
-        *str++ = *end;
-        *end-- = temp;
+        *str++ = *p2;
+        *p2-- = temp;
     }
 }
