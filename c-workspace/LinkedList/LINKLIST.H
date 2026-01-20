@@ -3,7 +3,7 @@ struct node {
     struct node* next;
 };
 
-struct node* mknode(n);
+struct node* mknode(int n);
 
 char* prnlist(struct node* list, char* list_str);
 int lsize(struct node* list);

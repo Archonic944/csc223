@@ -9,3 +9,10 @@ struct node *mknode(n) int n; {
     x->next = NULL;
     return x;
 }
+
+void dellst(struct node* head){
+    while(head != NULL){
+        head = head->next;
+        free(head);
+    }
+}
