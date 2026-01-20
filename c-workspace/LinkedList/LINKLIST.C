@@ -11,8 +11,10 @@ struct node *mknode(n) int n; {
 }
 
 void dellst(struct node* head){
+    struct node* after;
     while(head != NULL){
-        head = head->next;
+        head = after;
+        after = head->next;
         free(head);
     }
 }
