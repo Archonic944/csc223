@@ -1,6 +1,67 @@
-// BDS C
+/* BDS C */
 
 #include <stdio.h>
+
+struct CircularQueue {
+    int front;
+    int back;
+    char* arr;
+    int size;
+};
+
+void cirqFree(cirq)
+struct CircularQueue cirq;
+{
+    free(cirq.arr);
+}
+
+/* returns a response code. 1 for success 0 for error */
+char cirqAdd(cirq, element) /* constraint: element cannot be 0 (null char) */
+struct CircularQueue cirq;
+char element;
+{
+    if(element == 0){
+        return 0;
+    }
+    if(cirq.back == -1 && cirq.front == -1){
+        cirq.front = 0;
+        cirq.back = 0;
+        cirq.arr[0] = element;
+        return 1;
+    }else if(cirq.back == cirq.size-1){
+        if(cirq.front == 0){
+            return 0; /* overflow */
+        }
+        cirq.back = 0;
+        cirq.arr[0] = element;
+        return 1;
+    }else if(cirq.back == cirq.front-1){
+        return 0; /* overflow */
+    }else{
+        cirq.arr[++cirq.back] = element;
+        return 1;
+    }
+}
+
+/* returns the removed element, or char 0 if error (element cannot be 0; see cirqAdd) */
+char cirqRemove(cirq)
+struct CircularQueue cirq;
+{
+    if(cirq.front == -1 && cirq.back == -1){
+        return 0;
+    }else if(cirq.back == cirq.front){ /* special case for only 1 element; reset the buffer*/
+        char c;
+        c = cirq.arr[cirq.back];
+        cirq.back = -1;
+        cirq.front = -1;
+        return c;
+    }else if(cirq.front == cirq.size){
+        cirq.front = 0;
+        return cirq.arr[cirq.size];
+    }else{
+        return cirq.arr[cirq.front++];
+    }
+}
 
 int main(argc, argv)
 int argc;
@@ -31,73 +92,14 @@ char** argv;
     printf("4: %c", cirqRemove(cirq));
 }
 
-struct CircularQueue {
-    int front;
-    int back;
-    char* arr;
-    int size;
-};
-
-struct CircularQueue cirqCreate(size)
+void cirqInit(cirq, size)
+struct CircularQueue* cirq;
 int size;
 {
     struct CircularQueue cirq;
-    cirq.front = -1;
-    cirq.back = -1;
-    cirq.arr = alloc(size);
-    cirq.size = size;
+    cirq->front = -1;
+    cirq->back = -1;
+    cirq->arr = alloc(cirq->size);
+    cirq->size = size;
     return cirq;
-}
-
-void cirqFree(cirq)
-struct CircularQueue cirq;
-{
-    free(cirq.arr);
-}
-
-// returns a response code. 1 for success 0 for error
-char cirqAdd(cirq, element) // constraint: element cannot be 0 (null char)
-struct CircularQueue cirq;
-char element;
-{
-    if(element == 0){
-        return 0;
-    }
-    if(cirq.back == -1 && cirq.front == -1){
-        cirq.front = 0;
-        cirq.back = 0;
-        cirq.arr[0] = element;
-        return 1;
-    }else if(cirq.back == cirq.size-1){
-        if(cirq.front == 0){
-            return 0; // overflow
-        }
-        cirq.back = 0;
-        cirq.arr[0] = element;
-        return 1;
-    }else if(cirq.back == cirq.front-1){
-        return 0; // overflow
-    }else{
-        cirq.arr[++cirq.back] = element;
-        return 1;
-    }
-}
-
-// returns the removed element, or char 0 if error (element cannot be 0; see cirqAdd)
-char cirqRemove(cirq)
-struct CircularQueue cirq;
-{
-    if(cirq.front == -1 && cirq.back == -1){
-        return 0;
-    }else if(cirq.back == cirq.front){ // special case for only 1 element; reset the buffer
-        char c = cirq.arr[cirq.back];
-        cirq.back = -1;
-        cirq.front = -1;
-        return c;
-    }else if(cirq.front == cirq.size){
-        cirq.front = 0;
-        return cirq.arr[cirq.size];
-    }else{
-        return cirq.arr[cirq.front++];
-    }
 }
