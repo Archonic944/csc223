@@ -65,7 +65,39 @@ A one-dimensional array called `TREE` stores the tree elements:
 
 A binary search tree (or "ordered binary tree") has every node arranged in order. Every value on the left subtree of a node is less than the node's value, and every value on the right subtree is greater than the node's value.
 
-So, when we search for elements, 
+#### Searching for nodes in a binary search tree
+
+When we search for elements, we simply choose to go left or right at each node, depending on whether the value we're looking for is less than or greater than the current node's value. This allows us to find elements in logarithmic time on average. Binary trees are commonly used when contains checks need to be efficient.
+
+If a binary search tree is arranged poorly ("unbalanced"), then the search time can degrade to linear time.
+
+#### Inserting a new node
+
+The simplest way to insert a node is to first search for the value, and if the value is not found, insert the new node at the position where the search ended. This can lead to an unbalanced tree.
+
+#### Deleting a node
+
+Case 1: Deleting a node that has no children (a leaf node). We can simply remove the node.
+
+Case 2: Deleting a node that has one child. We can replace the node with its child.
+
+Case 3: Deleting a node that has two children. We replace the node with its in-order successor (the smallest node in the right subtree) or its in-order predecessor (the largest node in the left subtree). Then we delete the in-order successor or predecessor, which will be a leaf node or a node with one child, so we can apply case 1 or case 2.
+
+#### Determining the height of a binary tree
+
+The height of a binary tree is the number of edges on the longest path from the root to a leaf node. The height of an empty tree is -1, and the height of a tree with only one node is 0.
+
+We do this with a recursive algorithm. The height of a node is 1 + the maximum of the heights of its left and right children. The height of a leaf node is 0.
+
+#### Determining the number of nodes
+
+Once again, a recursive algorithm. The number of nodes is 1 + the number of nodes in the left subtree + the number of nodes in the right subtree. The number of nodes in an empty tree is 0.
+
+#### The "Mirror Image"
+
+We interchange the left subtree with the right subtree at every node of the tree. The image below shows the mirror image of the tree on the left.
+
+![Figure 10.22](image-3.png)
 
 ### Expression Trees
 
