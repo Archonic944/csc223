@@ -19,3 +19,7 @@ A tree is a hirearchical graph in which each node has at most two children, refe
 **Level number**: Each child's level number is one more than its parent's level number. The root node is at level 0.
 
 **Degree**: The number of children of a node. A leaf node has degree 0. In-degree and out-degree follow logically.
+
+## General Trees
+
+A general tree stores elements hirearchically. The top node is the root
