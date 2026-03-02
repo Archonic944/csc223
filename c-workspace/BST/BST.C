@@ -35,3 +35,55 @@ int val;
     }
     return tree;
 }
+
+/* Search for a value in the BST */
+struct node *search(tree, val)
+struct node *tree;
+int val;
+{
+    if (tree == NULL) {
+        return NULL;
+    }
+    if (val == tree->data) {
+        return tree;
+    }
+    else if (val < tree->data) {
+        return search(tree->left, val);
+    }
+    else {
+        return search(tree->right, val);
+    }
+}
+
+/* In-order traversal: Left, Root, Right */
+void inorder(tree)
+struct node *tree;
+{
+    if (tree != NULL) {
+        inorder(tree->left);
+        printf("%d ", tree->data);
+        inorder(tree->right);
+    }
+}
+
+/* Pre-order traversal: Root, Left, Right */
+void preorder(tree)
+struct node *tree;
+{
+    if (tree != NULL) {
+        printf("%d ", tree->data);
+        preorder(tree->left);
+        preorder(tree->right);
+    }
+}
+
+/* Post-order traversal: Left, Right, Root */
+void postorder(tree)
+struct node *tree;
+{
+    if (tree != NULL) {
+        postorder(tree->left);
+        postorder(tree->right);
+        printf("%d ", tree->data);
+    }
+}
