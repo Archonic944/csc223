@@ -87,3 +87,91 @@ struct node *tree;
         printf("%d ", tree->data);
     }
 }
+
+/* Find the node with the smallest value */
+struct node *findmin(tree)
+struct node *tree;
+{
+    if (tree == NULL) {
+        return NULL;
+    }
+    while (tree->left != NULL) {
+        tree = tree->left;
+    }
+    return tree;
+}
+
+/* Find the node with the largest value */
+struct node *findmax(tree)
+struct node *tree;
+{
+    if (tree == NULL) {
+        return NULL;
+    }
+    while (tree->right != NULL) {
+        tree = tree->right;
+    }
+    return tree;
+}
+
+/* Count total number of nodes */
+int countnodes(tree)
+struct node *tree;
+{
+    if (tree == NULL) {
+        return 0;
+    }
+    return 1 + countnodes(tree->left) + countnodes(tree->right);
+}
+
+/* Delete a value from the BST.
+ * Three cases:
+ * 1. Node is a leaf - just remove it
+ * 2. Node has one child - replace with child
+ * 3. Node has two children - replace with inorder successor
+ */
+struct node *delete(tree, val)
+struct node *tree;
+int val;
+{
+    struct node *temp;
+    if (tree == NULL) {
+        printf("Value %d not found\n", val);
+        return NULL;
+    }
+    if (val < tree->data) {
+        tree->left = delete(tree->left, val);
+    }
+    else if (val > tree->data) {
+        tree->right = delete(tree->right, val);
+    }
+    else {
+        /* Found the node to delete */
+        if (tree->left == NULL && tree->right == NULL) {
+            /* Case 1: Leaf node */
+            free(tree);
+            return NULL;
+        }
+        else if (tree->left == NULL) {
+            /* Case 2a: Only right child */
+            temp = tree->right;
+            free(tree);
+            return temp;
+        }
+        else if (tree->right == NULL) {
+            /* Case 2b: Only left child */
+            temp = tree->left;
+            free(tree);
+            return temp;
+        }
+        else {
+            /* Case 3: Two children
+             * Replace with inorder successor (smallest in right subtree)
+             */
+            temp = findmin(tree->right);
+            tree->data = temp->data;
+            tree->right = delete(tree->right, temp->data);
+        }
+    }
+    return tree;
+}
