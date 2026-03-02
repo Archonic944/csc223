@@ -12,7 +12,7 @@ struct node *mknode(val)
 int val;
 {
     struct node *newnode;
-    newnode = alloc(sizeof(struct node));
+    newnode = alloc(6); /* int + 2 ptrs = 6 bytes on 8080 */
     newnode->data = val;
     newnode->left = NULL;
     newnode->right = NULL;
