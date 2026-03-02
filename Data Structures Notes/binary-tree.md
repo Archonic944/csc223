@@ -60,3 +60,29 @@ A one-dimensional array called `TREE` stores the tree elements:
 - Children of node at location `K` are stored at `TREE[2*K]` (left) and `TREE[2*K+1]` (right)
 - Maximum array size is `2^h - 1`, where `h` is the tree height
 - `NULL` represents empty nodes or subtrees; `TREE[1] = NULL` means the tree is empty
+
+### Binary Search Trees
+
+A binary search tree (or "ordered binary tree") has every node arranged in order. Every value on the left subtree of a node is less than the node's value, and every value on the right subtree is greater than the node's value.
+
+So, when we search for elements, 
+
+### Expression Trees
+
+Binary trees are sometimes used to store algebraic expressions. For example: ![((a + b) – (c * d)) % ((e^f) / (g – h))](image-1.png)
+
+### Traversing a Binary Tree
+
+Binary trees can be traversed in many different ways:
+
+1. Pre-order Traversal: Visit the root, traverse the left subtree, traverse the right subtree. Also known as the "node-left-right" traversal. In this method, the entire left subtree of the root is visited before any node in the right subtree is visited.
+2. In-order Traversal: Traverse the left subtree, visit the root, traverse the right subtree. Often used to display the elements of a binary tree. In this method, the first node visited is the leftmost node in the tree. The traversal then works its way up, visiting each node only after its entire left subtree has been processed.
+
+![IN-ORDER TRAVERSAL ORDER: G, D, H, L, B, E, A, C, I, F, K, and J](image-2.png)
+
+A key point of confusion: "left-node-right" does not mean we finish the entire left half of the tree before visiting any node on the right. The rule applies **recursively at every node**. So when we arrive at a node like C (which has no left child), we visit it immediately — even if C sits above nodes like I, J, and K that are deeper in the tree. C's position as a right child of A does not delay its visit; what matters is that C itself has no left subtree to process first.
+
+3. Post-order traversal: Traverse the left subtree, traverse the right subtree, visit the root. Also known as the "left-right-node" traversal. Can be used to extract postfix notation from an expression tree.
+
+4. Level-order traversal: Visit the nodes by level, also known as a breadth-first traversal.
+
