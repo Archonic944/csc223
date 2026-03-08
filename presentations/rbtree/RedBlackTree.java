@@ -36,6 +36,28 @@ public class RedBlackTree<T extends Comparable<T>> implements Iterable<T> {
             if(parent == g.left) return g.right;
             else return g.left;
         }
+
+        RBNode successor(){
+            RBNode next = right;
+            while(next != null){
+                if(next.left == null) return next;
+                else next = next.left;
+            }
+            return next;
+        }
+
+        RBNode predecessor(){
+            RBNode next = left;
+            while(next != null){
+                if(next.right == null) return next;
+                else next = next.right;
+            }
+            return next;
+        }
+
+        boolean isLeaf(){
+            return left == null && right == null;
+        }
     }
 
     RBNode root;
@@ -210,11 +232,174 @@ public class RedBlackTree<T extends Comparable<T>> implements Iterable<T> {
         throw new RuntimeException("what...??");
     }
 
-    public RedBlackTree(Comparator<T> c){
-        comparator = c;
+    RBNode find(T result){
+        RBNode next = root;
+        while(next != null){
+            int c = result.compareTo(next.data);
+            if(c == 0){
+                return next;
+            }else if(c > 0){
+                next = next.right;
+            }else{
+                next = next.left;
+            }
+        }
+        return null;
+    }
+
+    boolean remove(T data){
+        RBNode n = find(data);
+        if(n == null) return false;
+        deleteChild(n);
+        return true;
     }
 
 
+    void deleteChild(RBNode n){
+        // is it the root
+        if(n == root){
+            if(n.isLeaf()){
+                root = null;
+            }else if(n.left == null){
+                root = n.right;
+                root.parent = null;
+                root.black = true;
+            }else if(n.right == null){
+                root = n.left;
+                root.parent = null;
+                root.black = true;
+            }else{
+                // two children
+                RBNode s = n.successor();
+                n.data = s.data;
+                deleteChild(s);
+            }
+            return;
+        }
+        RBNode dnSibling;
+        boolean dnBlack;
+        boolean dnIsLeft;
+        // is it a leaf?
+        if(n.isLeaf()){
+            dnSibling = n.sibling();
+            dnIsLeft = (n.parent.left == n);
+            dnBlack = n.black;
+            if(n.parent.left == n){
+                n.parent.left = null;
+            }else if(n.parent.right == n){
+                n.parent.right = null;
+            }
+        }else{
+            // does it have an only child?
+            RBNode child = null;
+            if(n.left == null){
+                child = n.right;
+            }else if(n.right == null){
+                child = n.left;
+            }
+            if(child != null){
+                dnSibling = n.sibling();
+                dnIsLeft = (n.parent.left == n);
+                dnBlack = n.black;
+                replaceNode(n, child);
+            }
+            else{
+                // two children
+                RBNode s = n.successor();
+                n.data = s.data;
+                dnSibling = s.sibling();
+                dnIsLeft = (s.parent.left == s);
+                dnBlack = s.black;
+                replaceNode(s, null);
+            }
+        }
+        if(!dnBlack) return;
+        // rebalance the tree
+        // case 1: sibling is red
+        case1D(dnSibling, dnIsLeft);
+    }
+
+    void case1D(RBNode dnSibling, boolean dnIsLeft){
+        if(!dnSibling.black){
+            dnSibling.black = true;
+            dnSibling.parent.black = false;
+            if(dnSibling == dnSibling.parent.right){
+                rotateLeft(dnSibling.parent);
+            }else{
+                rotateRight(dnSibling.parent);
+            }
+            case2D(dnIsLeft ? dnSibling.left.right : dnSibling.right.left, dnIsLeft);
+        }else{
+            case2D(dnSibling, dnIsLeft);
+        }
+    }
+
+    void case2D(RBNode dnSibling, boolean dnIsLeft){
+        if(dnSibling.black &&
+            (dnSibling.left == null || dnSibling.left.black) &&
+               (dnSibling.right == null || dnSibling.right.black)
+        ){
+            dnSibling.black = false;
+            if(!dnSibling.parent.black){
+                dnSibling.parent.black = true;
+            }else{
+                case1D(dnSibling.parent.sibling(), dnSibling.parent.left == dnSibling.parent);
+            }
+        }else{
+            case3D(dnSibling, dnIsLeft);
+        }
+    }
+
+    void case3D(RBNode dnSibling, boolean dnIsLeft){
+        RBNode nearChild = (dnIsLeft ? dnSibling.left : dnSibling.right);
+        RBNode farChild = dnIsLeft ? dnSibling.right : dnSibling.left;
+        if(nearChild != null && farChild != null && !nearChild.black && farChild.black){
+            nearChild.black = true;
+            dnSibling.black = false;
+            if(dnIsLeft){
+                rotateRight(dnSibling);
+            }else{
+                rotateLeft(dnSibling);
+            }
+            case4D(dnSibling.parent, dnIsLeft);
+        }
+        case4D(dnSibling, dnIsLeft);
+    }
+
+    void case4D(RBNode dnSibling, boolean dnIsLeft){
+        if(dnSibling.black){
+            RBNode farChild = dnIsLeft ? dnSibling.right : dnSibling.left;
+            if(farChild != null && !farChild.black){
+                dnSibling.black = dnSibling.parent.black;
+                dnSibling.parent.black = true;
+                farChild.black = true;
+                if(dnIsLeft){
+                    rotateLeft(dnSibling.parent);
+                }else{
+                    rotateRight(dnSibling.parent);
+                }
+            }
+        }
+    }
+
+    /**
+     * Replaces n with m
+     * @param n replacee, to be effectively removed from the tree
+     * @param m replacer, to fill n's place
+     */
+
+    void replaceNode(RBNode n, RBNode m){
+        if(n.parent.left == n){
+            n.parent.left = m;
+        }else{
+            n.parent.right = m;
+        }
+        if(m != null) m.parent = n.parent;
+    }
+
+    public RedBlackTree(Comparator<T> c){
+        comparator = c;
+    }
 
     public RedBlackTree(){}
 
@@ -236,13 +421,23 @@ public class RedBlackTree<T extends Comparable<T>> implements Iterable<T> {
         // }
         Scanner s = new Scanner(System.in);
         RedBlackTree<Integer> tree = new RedBlackTree<>();
-        for(int i = 1; i<=10; i++){
-            tree.addNode(i);
-            for(int j : tree){
-                System.out.print(j + " ");
+        while(true){
+            System.out.println("Main menu\n1. Insert\n2. Remove\n3. Print");
+            int c = s.nextInt();
+            if(c == 1){
+                System.out.println("Enter value to insert:");
+                int v = s.nextInt();
+                tree.addNode(v);
+            }else if(c == 2){
+                System.out.println("Enter value to remove:");
+                int v = s.nextInt();
+                tree.remove(v);
+            }else if(c == 3){
+                for(int i : tree){
+                    System.out.print(i + " ");
+                }
+                System.out.println();
             }
-            System.out.println();
-            s.nextLine();
         }
     }
 }
