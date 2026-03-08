@@ -103,7 +103,7 @@ To fix these (rebalancing the tree), we evaluate different cases based on the pr
 
 In this case, we recolor the near child black, and the sibling red, then rotate the sibling away from the deleted node position. **This transforms the situation into case 4. Apply case 4 next.**
 
-4. **Sibling is black, sibling's far child is red:** Recolor the sibling to the parent's color, recolor the parent to black, recolor the far child to black, and rotate the parent away from the deleted node position (toward it). This restores the black-height property. **Rebalancing is complete.**
+4. **Sibling is black, sibling's far child is red:** Recolor the sibling to the parent's color, recolor the parent to black, recolor the far child to black, and rotate the parent toward the deleted node's position. This restores the black-height property. **Rebalancing is complete.**
 
 ## Code & Visualization
 
