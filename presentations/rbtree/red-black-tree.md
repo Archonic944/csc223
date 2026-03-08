@@ -108,3 +108,5 @@ In this case, we recolor the near child black, and the sibling red, then rotate 
 ## Code & Visualization
 
 I created an interactive visualization with Gemini CLI, using React, Tailwind CSS, Framer Motion, and TypeScript. Try it here: https://red-black-visualizer.pages.dev/
+
+For my java code: [RedBlackTree.java](/presentations/rbtree/RedBlackTree.java)
