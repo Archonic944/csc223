@@ -316,7 +316,9 @@ public class RedBlackTree<T extends Comparable<T>> implements Iterable<T> {
         if(!dnBlack) return;
         // rebalance the tree
         // case 1: sibling is red
-        case1D(dnSibling, dnIsLeft);
+        if(dnSibling == null){
+            case1D(n.parent.sibling(), dnIsLeft);
+        }else case1D(dnSibling, dnIsLeft);
     }
 
     void case1D(RBNode dnSibling, boolean dnIsLeft){
@@ -329,7 +331,8 @@ public class RedBlackTree<T extends Comparable<T>> implements Iterable<T> {
                 rotateRight(dnSibling.parent);
             }
             case2D(dnIsLeft ? dnSibling.left.right : dnSibling.right.left, dnIsLeft);
-        }else{
+        }
+        else{
             case2D(dnSibling, dnIsLeft);
         }
     }
@@ -342,8 +345,9 @@ public class RedBlackTree<T extends Comparable<T>> implements Iterable<T> {
             dnSibling.black = false;
             if(!dnSibling.parent.black){
                 dnSibling.parent.black = true;
-            }else{
-                case1D(dnSibling.parent.sibling(), dnSibling.parent.left == dnSibling.parent);
+            }else if(dnSibling.parent.parent != null){
+                boolean parentIsLeft = (dnSibling.parent.parent.left == dnSibling.parent);
+                case1D(dnSibling.parent.sibling(), parentIsLeft);
             }
         }else{
             case3D(dnSibling, dnIsLeft);
@@ -367,7 +371,7 @@ public class RedBlackTree<T extends Comparable<T>> implements Iterable<T> {
     }
 
     void case4D(RBNode dnSibling, boolean dnIsLeft){
-        if(dnSibling.black){
+        if(dnSibling != null && dnSibling.black){
             RBNode farChild = dnIsLeft ? dnSibling.right : dnSibling.left;
             if(farChild != null && !farChild.black){
                 dnSibling.black = dnSibling.parent.black;
