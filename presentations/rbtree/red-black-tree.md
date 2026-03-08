@@ -74,7 +74,9 @@ Rotations never change the order of the elements.
 
 ## Deletion
 
-First, you must delete the node as you do in a standard binary search tree. If the node is a leaf, you simply remove it. If the node has one child, you replace the node with its child. If it has two children, you replace the node with its in-order successor (the smallest node in the right subtree) and then delete the in-order successor.
+First, you must delete the node as you do in a standard binary search tree. If the node is a leaf, you simply remove it. If the node has one child, you replace the node with its child. If it has two children, you replace the node's data with its in-order successor's data (the smallest node in the right subtree), and then **physically delete the in-order successor from its original position**.
+
+**The "deleted node" always refers to the node physically removed from the tree** (either the original target if it has ≤ 1 child, or the in-order successor if the target has 2 children).
 
 If the deleted node is red, then the tree is still a valid red-black tree.
 
@@ -83,13 +85,13 @@ If the deleted node is black, the tree likely now violates red-black properties.
 - Deleting a black node may cause a path to have fewer black nodes than other paths, violating the property that all paths from a node to its descendant leaves must have the same number of black nodes.
 - Deleting a black node that has a red child may cause two red nodes to be adjacent, violating the property that red nodes cannot have red children.
 
-To fix these (rebalancing the tree), we evaluate different cases:
+To fix these (rebalancing the tree), we evaluate different cases based on the properties of the deleted node's sibling. **The algorithm repeats recursively, moving up the tree until the black-height property is fully restored.**
 
-1. **Sibling is red:** We recolor the sibling black, and its parent red, then rotate the parent towards the node we're deleting. **Converts into case 2, 3, or 4.**
+1. **Sibling is red:** We recolor the sibling black, and its parent red, then rotate the parent away from the sibling (toward the deleted node's position). This converts the situation into case 2, 3, or 4. **After this rotation, the red sibling moves up and one of its children (the one that was closer to the deleted node's position) becomes the new node to check. Re-evaluate this node's properties against cases 2, 3, or 4.**
 
-2. **Sibling is black with two black children:** Recolor sibling red, and if the parent is red, recolor it black. If the parent is black, the black deficiency moves up to the parent, and we repeat the process from the parent.
+2. **Sibling is black with two black children:** Recolor sibling red, and if the parent is red, recolor it black. If the parent is black, the black deficiency moves up to the parent. **Repeat the entire case-matching process (cases 1-4) at the parent level** until the tree is fully rebalanced.
 
-3. **Sibling is black, sibling's near child is red, sibling's far child is black:** The deleted node (DN)'s "near child" is the child of the sibling that is closer to the deleted node. The DN's far child is the child of the sibling that is farther from the deleted node. 
+3. **Sibling is black, sibling's near child is red, sibling's far child is black:** Let DN = the deleted node position. The DN's "near child" is the child of the sibling that is closer to the deleted node position. The DN's "far child" is the child of the sibling that is farther from the deleted node position. 
 
 ```     
            P
@@ -99,10 +101,10 @@ To fix these (rebalancing the tree), we evaluate different cases:
        near (R)  far (B)
 ```
 
-In this case, we recolor the near child black, and the sibling red, then rotate the sibling away from the deleted node. **This transforms the situation into case 4.**
+In this case, we recolor the near child black, and the sibling red, then rotate the sibling away from the deleted node position. **This transforms the situation into case 4. Apply case 4 next.**
 
-4. **Sibling is black, sibling's far child is red:** Recolor the sibling to the parent's color, recolor the parent to black, recolor the far child to black, and rotate the parent towards the double black node.
+4. **Sibling is black, sibling's far child is red:** Recolor the sibling to the parent's color, recolor the parent to black, recolor the far child to black, and rotate the parent away from the deleted node position (toward it). This restores the black-height property. **Rebalancing is complete.**
 
 ## Code & Visualization
 
-I created an interactive visualization with Gemini CLI, using React, Tailwind CSS, Framer, and TypeScript. Try it here: https://red-black-visualizer.pages.dev/
+I created an interactive visualization with Gemini CLI, using React, Tailwind CSS, Framer Motion, and TypeScript. Try it here: https://red-black-visualizer.pages.dev/
