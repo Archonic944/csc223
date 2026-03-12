@@ -38,3 +38,12 @@ We always remove (or "pop") the root of the heap. So, removing the top element i
 3. Let the new root value sink to its appropriate place so that the array represents a heap again.
 
 The third step is called **heapifying down**. To do it, we compare the new root value with its children. If they are not in the correct order, we swap the root's value with the appropriate child's value. To determine which child to pick, we choose the larger one (in a max heap) or the smaller one (in a min heap). We keep doing this down the tree.
+
+## Time Complexity
+
+| Operation | Time Complexity |
+| --- | --- |
+| Get Min/Max | O(1) |
+| Insert | O(log n) |
+| Remove Min/Max | O(log n) |
+| Heapify (Build Heap) | O(n) |
