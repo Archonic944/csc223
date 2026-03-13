@@ -8,35 +8,47 @@ void swap(a, b)
 int* a;
 int* b;
 {
-    int temp = *a;
+    int temp;
+    temp = *a;
     *a = *b;
     *b = temp;
 }
 
-struct mkmaxheap(capacity)
-int capacity;
+int* max(a, b)
+int* a;
+int* b;
+{
+    if(*a > *b)
+        return a;
+    return b;
+}
+
+struct MaxHeap* mkmaxheap(max_capacity)
+int max_capacity;
 {
     struct MaxHeap* heap;
-    heap = alloc(sizeof(struct MaxHeap));
-    heap->data = alloc(capacity * sizeof(int));
+    heap = alloc(sizeof(*heap));
+    heap->data = alloc(max_capacity * sizeof(*heap->data));
     heap->size = 0;
-    heap->capacity = capacity;
+    heap->capacity = max_capacity;
     return heap;
 }
 
-char insert(struct MaxHeap* heap, int num)
+char insert(heap, num)
+struct MaxHeap* heap;
+int num;
 {
+    int* dat;
+    int i;
     if(heap->size == heap->capacity)
         return 1;
-    int* data;
-    data = heap->data;
-    int i;
+    dat = heap->data;
     i = heap->size++;
-    data[i] = num;
+    dat[i] = num;
     while(i > 0){
-        if(data[i/2] < num){
-            swap(data+i, data+i/2);
-            i /= 2;
+        if(dat[(i-1)/2] < num){
+            swap(dat+i, dat+(i-1)/2);
+            i = (i-1)/2;
         }else{
             break;
         }
@@ -44,8 +56,41 @@ char insert(struct MaxHeap* heap, int num)
     return 0;
 }
 
-int remove_max(struct MaxHeap* heap){
+int remove_max(heap)
+struct MaxHeap* heap;
+{
+    int ret;
+    int* dat;
+    int i;
     if(heap->size == 0){
         return -1; /* idk lol */
     }
+    dat = heap->data;
+    ret = dat[0];
+    dat[0] = dat[--(heap->size)];
+    i = 0;
+    while(i < heap->size){
+        int left_idx;
+        int right_idx;
+        int max_idx;
+
+        left_idx = 2*i + 1;
+        right_idx = 2*i + 2;
+        max_idx = i;
+
+        if(left_idx < heap->size && dat[left_idx] > dat[max_idx]){
+            max_idx = left_idx;
+        }
+        if(right_idx < heap->size && dat[right_idx] > dat[max_idx]){
+            max_idx = right_idx;
+        }
+
+        if(max_idx == i){
+            break;
+        }
+
+        swap(dat + i, dat + max_idx);
+        i = max_idx;
+    }
+    return ret;
 }
