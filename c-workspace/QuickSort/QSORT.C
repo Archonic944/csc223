@@ -86,8 +86,6 @@ int* pivot;
             break;
         }
         swap(s, e);
-        s++;
-        e--;
     }
     if(s == NULL){
         printf("s is NULL\n");
