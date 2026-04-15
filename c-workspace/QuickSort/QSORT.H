@@ -45,8 +45,6 @@ int pivot;
     for(i = startp; i <= endp; i++){
         if(*i >= pivot){
             return i;
-        }else{
-            printf("%d was not ge to %d\n", *i, pivot);
         }
     }
     return NULL;
@@ -71,7 +69,6 @@ int* startp;
 int* endp;
 int* pivot;
 {
-    int* i;
     int* s;
     int* e;
     int p;
@@ -83,18 +80,9 @@ int* pivot;
         s = itmLeft(s, e, p);
         e = itmRight(s, e, p);
         if(s >= e || s == NULL || e == NULL){
-            printf("s=%d e=%d\n", *s, *e);
             break;
         }
         swap(s, e);
-        printf("Made a partition swap:");
-        for(i = startp; i <= endp; i++){
-            printf("%d ", *i);
-        }
-        printf("\n");
-    }
-    if(s == NULL){
-        printf("s is NULL\n");
     }
     swap(endp, s);
     return s;
@@ -104,9 +92,7 @@ void qsortRec(startp, endp)
 int* startp;
 int* endp;
 {
-    int* i;
     int* pivot;
-    printf("Recursing from %d to %d\n", *startp, *endp);
     if(endp - startp == 1){
         if(*startp > *endp){
             swap(startp, endp);
@@ -116,13 +102,7 @@ int* endp;
         return;
     }
     pivot = medianOfThree(startp, endp);
-    printf("Pivot: %d\n", *pivot);
     pivot = partition(startp, endp, pivot);
-    printf("Partitioned: ");
-    for(i = startp; i <= endp; i++){
-        printf("%d ", *i);
-    }
-    printf("\n");
     qsortRec(startp, pivot-1);
     qsortRec(pivot+1, endp);
 }
@@ -136,15 +116,4 @@ int size;
     }
     
     qsortRec(arr, arr+size-1);
-}
-
-int main(){
-    int arr[10];
-    int i;
-    initw(arr, "10,9,8,7,6,5,4,3,2,1");
-    myQsort(arr, 10);
-    for(i = 0; i < 10; i++){
-        printf("%d ", arr[i]);
-    }
-    printf("\n");
 }
