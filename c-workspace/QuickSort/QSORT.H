@@ -71,18 +71,27 @@ int* pivot;
     int* s;
     int* e;
     int p;
+    int* next_s;
+    int* next_e;
     p = *pivot;
     s = startp;
     e = endp-1;
     swap(pivot, endp);
     while(1){
-        s = itmLeft(s, e, p);
-        e = itmRight(s, e, p);
-        if(s >= e || s == NULL || e == NULL){
+        next_s = itmLeft(s, e, p);
+        next_e = itmRight(s, e, p);
+        if(next_s >= next_e || next_s == NULL || next_e == NULL){
+            if (next_s != NULL) s = next_s;
+            else s = e + 1;
             break;
         }
+        s = next_s;
+        e = next_e;
         swap(s, e);
+        s++;
+        e--;
     }
+    if (s > endp) s = endp;
     swap(endp, s);
     return s;
 }
