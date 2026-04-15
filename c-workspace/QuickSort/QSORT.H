@@ -2,7 +2,6 @@
 /* Gabe Cohen */
 /* (in BDS c function parameter types are defined after the function header) */
 
-#include <stdio.h>
 #define NULL 0
 
 void swap(a, b)
