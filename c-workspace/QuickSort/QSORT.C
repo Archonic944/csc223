@@ -71,6 +71,7 @@ int* startp;
 int* endp;
 int* pivot;
 {
+    int* i;
     int* s;
     int* e;
     int p;
@@ -86,6 +87,11 @@ int* pivot;
             break;
         }
         swap(s, e);
+        printf("Made a partition swap:");
+        for(i = startp; i <= endp; i++){
+            printf("%d ", *i);
+        }
+        printf("\n");
     }
     if(s == NULL){
         printf("s is NULL\n");
@@ -101,12 +107,12 @@ int* endp;
     int* i;
     int* pivot;
     printf("Recursing from %d to %d\n", *startp, *endp);
-    if(endp - startp == 2){
+    if(endp - startp == 1){
         if(*startp > *endp){
             swap(startp, endp);
         }
         return;
-    }else if(endp - startp == 1){
+    }else if(endp - startp < 1){
         return;
     }
     pivot = medianOfThree(startp, endp);
