@@ -101,12 +101,12 @@ int* startp;
 int* endp;
 {
     int* pivot;
-    if(endp - startp == 1){
+    if(startp >= endp){
+        return;
+    }else if(endp - startp == 1){
         if(*startp > *endp){
             swap(startp, endp);
         }
-        return;
-    }else if(endp - startp < 1){
         return;
     }
     pivot = medianOfThree(startp, endp);
