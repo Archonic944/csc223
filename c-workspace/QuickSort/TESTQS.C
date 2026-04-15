@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "BDSCTEST.h"
 #include "QSORT.H"
 
