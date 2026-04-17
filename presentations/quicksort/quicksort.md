@@ -53,3 +53,9 @@ void qsortRec(startp, endp)
     qsortRec(pivot+1, endp);     /* Sort Right Side */
 }
 ```
+
+## A Nice Visualizer
+
+From Virginia Tech's CS department: https://opendsa-server.cs.vt.edu/embed/quicksortAV
+
+Enter space separated values and click "run".
